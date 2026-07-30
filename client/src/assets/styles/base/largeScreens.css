@@ -1,0 +1,2896 @@
+/*
+ * Large-screen readability layer.
+ * Keeps laptop sizing intact while giving demo displays slightly larger type,
+ * better spacing, and bounded content widths without scaling the whole UI.
+ */
+
+@media (min-width: 1440px) {
+  :root {
+    --layout-max: 1680px !important;
+    --layout-gutter: clamp(2rem, 3vw, 4rem) !important;
+  }
+
+  .page-section,
+  .management-header__inner,
+  .site-footer__inner {
+    max-width: 1680px;
+  }
+
+  .page-section {
+    gap: 1.75rem;
+  }
+
+  .page-intro {
+    max-width: 48rem;
+  }
+
+  .page-intro h1,
+  .page-intro h2 {
+    font-size: clamp(2.25rem, 3vw, 3.5rem) !important;
+  }
+
+  .eyebrow,
+  .page-breadcrumbs,
+  .profile-panel__count {
+    font-size: clamp(0.75rem, 0.7rem + 0.08vw, 0.875rem) !important;
+  }
+
+  /* Store header and navigation */
+  body.hem-shop-shell {
+    --store-header-height: 110px !important;
+  }
+
+  body.hem-shop-shell .store-promo,
+  body.hem-shop-shell .store-promo__inner,
+  body.hem-shop-shell .store-promo__item,
+  body.hem-shop-shell .store-promo__separator,
+  body.hem-shop-shell .store-promo__utility {
+    height: 34px !important;
+    min-height: 34px !important;
+  }
+
+  body.hem-shop-shell .store-header__inner {
+    height: 64px !important;
+  }
+
+  body.hem-shop-shell .store-header__left {
+    position: relative;
+    z-index: 4;
+  }
+
+  body.hem-shop-shell .store-action--search-pill {
+    height: 40px !important;
+  }
+
+  body.hem-shop-shell .store-header__nav-row,
+  body.hem-shop-shell .store-nav__link {
+    height: 46px !important;
+  }
+
+  body.hem-shop-shell .store-sale-strip {
+    min-height: 34px !important;
+  }
+
+  body.hem-shop-shell .brand-lockup__logo {
+    height: 40px !important;
+  }
+
+  body.hem-shop-shell .store-promo__item,
+  body.hem-shop-shell .account-login,
+  body.hem-shop-shell .account-menu__trigger,
+  body.hem-shop-shell .store-action-labeled {
+    font-size: 0.8125rem !important;
+  }
+
+  body.hem-shop-shell .store-nav__link {
+    font-size: clamp(1.0625rem, 1rem + 0.12vw, 1.1875rem) !important;
+  }
+
+  body.hem-shop-shell .store-action--search-pill,
+  body.hem-shop-shell .account-menu__link,
+  body.hem-shop-shell .mega-menu a {
+    font-size: clamp(0.875rem, 0.82rem + 0.08vw, 1rem) !important;
+  }
+
+  /* Catalog and product cards */
+  body.hem-shop-shell .catalog-meta,
+  body.hem-shop-shell .catalog-tabs__button,
+  body.hem-shop-shell .catalog-filter__trigger,
+  body.hem-shop-shell .landing-section__top .eyebrow,
+  body.hem-shop-shell .landing-section .text-button {
+    font-size: clamp(0.6875rem, 0.65rem + 0.08vw, 0.8125rem) !important;
+  }
+
+  body.hem-shop-shell .product-card__badge,
+  body.hem-shop-shell .product-card__meta-line,
+  body.hem-shop-shell .product-card__price-pill {
+    font-size: clamp(0.625rem, 0.58rem + 0.08vw, 0.75rem) !important;
+  }
+
+  body.hem-shop-shell .product-card__title,
+  body.hem-shop-shell .product-card__price-amount,
+  body.hem-shop-shell .landing-product-card__title {
+    font-size: clamp(0.875rem, 0.82rem + 0.1vw, 1rem) !important;
+  }
+
+  body.hem-shop-shell .product-card__rating,
+  body.hem-shop-shell .product-card__price-original {
+    font-size: clamp(0.75rem, 0.7rem + 0.06vw, 0.8125rem) !important;
+  }
+
+  /* Profile, order list, checkout, and cart */
+  body.hem-shop-shell .profile-view {
+    max-width: 1680px;
+    padding-right: 3rem;
+    padding-left: 3rem;
+  }
+
+  body.hem-shop-shell .profile-layout {
+    grid-template-columns: minmax(19rem, 23rem) minmax(0, 1fr);
+    gap: clamp(4rem, 6vw, 7rem);
+  }
+
+  body.hem-shop-shell .profile-member-card__info p,
+  body.hem-shop-shell .profile-sidebar__button span,
+  body.hem-shop-shell .profile-order-line__name,
+  body.hem-shop-shell .checkout-view label {
+    font-size: clamp(0.875rem, 0.82rem + 0.06vw, 1rem) !important;
+  }
+
+  body.hem-shop-shell .profile-member-card__info small,
+  body.hem-shop-shell .profile-order__id,
+  body.hem-shop-shell .profile-order__date,
+  body.hem-shop-shell .profile-order__status-badge,
+  body.hem-shop-shell .profile-order__request-badge,
+  body.hem-shop-shell .profile-order-tabs__button,
+  body.hem-shop-shell .profile-order-line__meta,
+  body.hem-shop-shell .profile-order-line__price,
+  body.hem-shop-shell .checkout-view small {
+    font-size: clamp(0.75rem, 0.7rem + 0.06vw, 0.875rem) !important;
+  }
+
+  body.hem-shop-shell .checkout-sidebar__note,
+  body.hem-shop-shell .checkout-success__label,
+  body.hem-shop-shell .checkout-success__strip-label,
+  body.hem-shop-shell .checkout-success__field-label,
+  body.hem-shop-shell .checkout-price-label,
+  body.hem-shop-shell .checkout-coupon__available-label,
+  body.hem-shop-shell .checkout-coupon__meta-label,
+  body.hem-shop-shell .coupon-card__meta-label {
+    font-size: clamp(0.75rem, 0.7rem + 0.06vw, 0.875rem) !important;
+  }
+
+  body.hem-shop-shell .checkout-payment__label,
+  body.hem-shop-shell .checkout-success__card-heading,
+  body.hem-shop-shell .checkout-coupon__meta-value,
+  body.hem-shop-shell .coupon-card__meta-value {
+    font-size: clamp(0.8125rem, 0.76rem + 0.07vw, 0.9375rem) !important;
+  }
+
+  body.hem-shop-shell .profile-panel__top h1,
+  body.hem-shop-shell .checkout-heading,
+  body.hem-shop-shell .cart-heading {
+    font-size: clamp(1.375rem, 1.25rem + 0.2vw, 1.625rem) !important;
+  }
+
+  body.hem-shop-shell .checkout-layout,
+  body.hem-shop-shell .cart-layout {
+    gap: 1.5rem;
+  }
+
+  body.hem-shop-shell .checkout-layout {
+    grid-template-columns: minmax(0, 1.25fr) minmax(23rem, 0.75fr);
+  }
+
+  body.hem-shop-shell .product-detail {
+    grid-template-columns: minmax(0, 0.9fr) minmax(26rem, 1fr);
+    gap: clamp(3rem, 4vw, 5rem);
+  }
+
+  /* Footer and search */
+  body.hem-shop-shell .site-footer {
+    padding-right: var(--layout-gutter);
+    padding-left: var(--layout-gutter);
+  }
+
+  body.hem-shop-shell .site-footer__accent-bar,
+  body.hem-shop-shell .site-footer__container,
+  body.hem-shop-shell .site-footer__bottom {
+    width: min(100%, 1680px);
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  body.hem-shop-shell .site-footer__logo {
+    font-size: clamp(2.375rem, 2.2rem + 0.3vw, 2.75rem) !important;
+  }
+
+  body.hem-shop-shell .site-footer__description,
+  body.hem-shop-shell .site-footer__social-link,
+  body.hem-shop-shell .site-footer__contact-link,
+  body.hem-shop-shell .site-footer__link,
+  body.hem-shop-shell .site-footer__payment-note,
+  body.hem-shop-shell .site-footer__newsletter-text,
+  body.hem-shop-shell .site-footer__newsletter-input {
+    font-size: clamp(0.8125rem, 0.76rem + 0.07vw, 0.9375rem) !important;
+  }
+
+  body.hem-shop-shell .site-footer__col-title,
+  body.hem-shop-shell .site-footer__payment-card,
+  body.hem-shop-shell .site-footer__copy,
+  body.hem-shop-shell .site-footer__bottom-links,
+  body.hem-shop-shell .search-drawer__label,
+  body.hem-shop-shell .search-drawer__clear,
+  body.hem-shop-shell .search-drawer__suggestion-meta,
+  body.hem-shop-shell .search-drawer__history-date {
+    font-size: clamp(0.75rem, 0.7rem + 0.05vw, 0.875rem) !important;
+  }
+
+  body.hem-shop-shell .search-drawer .search-drawer__form input[type='search'],
+  body.hem-shop-shell .search-drawer .search-drawer__form input[type='search']::placeholder,
+  body.hem-shop-shell .search-drawer__suggestion-label,
+  body.hem-shop-shell .search-drawer__history-keyword {
+    font-size: clamp(0.9375rem, 0.88rem + 0.08vw, 1.0625rem) !important;
+  }
+
+  body.hem-shop-shell .search-drawer__state {
+    font-size: clamp(0.8125rem, 0.76rem + 0.06vw, 0.9375rem) !important;
+  }
+
+  /* Studio */
+  body.hem-admin-shell .admin-dashboard,
+  body.hem-admin-shell .admin-route-layout {
+    --nav-width: 15.5rem !important;
+  }
+
+  body.hem-admin-shell .admin-content {
+    --admin-content-gutter: 2.5rem;
+    --admin-content-max: 1480px;
+    padding-right: var(--admin-content-gutter) !important;
+    padding-bottom: 3rem !important;
+    padding-left: var(--admin-content-gutter) !important;
+  }
+
+  body.hem-admin-shell .admin-topbar {
+    margin-right: calc(var(--admin-content-gutter) * -1) !important;
+    margin-left: calc(var(--admin-content-gutter) * -1) !important;
+    padding-right: var(--admin-content-gutter) !important;
+    padding-left: var(--admin-content-gutter) !important;
+  }
+
+  body.hem-admin-shell .admin-content > :not(.admin-topbar) {
+    width: min(100%, var(--admin-content-max));
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  body.hem-admin-shell .admin-sidebar__button,
+  body.hem-admin-shell .admin-sidebar-subnav button,
+  body.hem-admin-shell .admin-profile-chip__content strong,
+  body.hem-admin-shell .admin-toolbar input,
+  body.hem-admin-shell .admin-toolbar select,
+  body.hem-admin-shell .admin-editor-form input,
+  body.hem-admin-shell .admin-editor-form select,
+  body.hem-admin-shell .dashboard-table,
+  body.hem-admin-shell .dashboard-table table,
+  body.hem-admin-shell .admin-empty {
+    font-size: clamp(0.8125rem, 0.78rem + 0.05vw, 0.9375rem) !important;
+  }
+
+  body.hem-admin-shell .admin-sidebar-logout,
+  body.hem-admin-shell .admin-profile-chip__content small,
+  body.hem-admin-shell .admin-panel__eyebrow,
+  body.hem-admin-shell .dashboard-table th,
+  body.hem-admin-shell .status,
+  body.hem-admin-shell .table-action,
+  body.hem-admin-shell .admin-editor-field > span,
+  body.hem-admin-shell .admin-editor-field > small {
+    font-size: clamp(0.75rem, 0.7rem + 0.05vw, 0.875rem) !important;
+  }
+
+  body.hem-admin-shell .admin-page-heading h1 {
+    font-size: clamp(1.5rem, 1.4rem + 0.18vw, 1.75rem) !important;
+  }
+
+  body.hem-admin-shell .admin-page-heading p,
+  body.hem-admin-shell .admin-panel__top h2 {
+    font-size: clamp(0.9375rem, 0.88rem + 0.08vw, 1.0625rem) !important;
+  }
+
+  body.hem-admin-shell .admin-stat-card {
+    padding: 1.5rem 1.625rem !important;
+  }
+
+  body.hem-admin-shell .admin-stat-card p {
+    font-size: clamp(0.8125rem, 0.76rem + 0.08vw, 0.9375rem) !important;
+  }
+
+  body.hem-admin-shell .admin-stat-card strong {
+    font-size: clamp(1.875rem, 1.7rem + 0.35vw, 2.25rem) !important;
+  }
+
+  body.hem-admin-shell .admin-panel {
+    padding: 1.625rem 1.75rem !important;
+  }
+
+  body.hem-admin-shell .dashboard-table th,
+  body.hem-admin-shell .dashboard-table td {
+    padding: 0.875rem 1rem !important;
+  }
+
+  /*
+   * Demo readability pass.
+   * Several route chunks still use hard-coded 10-13px text. These overrides lift
+   * the dense storefront and Studio surfaces on wide screens without changing the
+   * mobile/laptop rhythm.
+   */
+  body.hem-shop-shell .shop-layout {
+    --font-size-xs: 0.8125rem;
+    --font-size-sm: 0.9375rem;
+    --font-size-md: 1.0625rem;
+    --font-size-lg: 1.25rem;
+    --font-size-xl: 1.5625rem;
+  }
+
+  body.hem-shop-shell .product-info__title {
+    font-size: 2.375rem !important;
+    line-height: 1.14 !important;
+  }
+
+  body.hem-shop-shell .product-price__current {
+    font-size: 1.875rem !important;
+  }
+
+  body.hem-shop-shell .product-price__compare {
+    font-size: 1.125rem !important;
+  }
+
+  body.hem-shop-shell .product-price__label,
+  body.hem-shop-shell .product-badges__item,
+  body.hem-shop-shell .selector-label,
+  body.hem-shop-shell .size-guide-trigger,
+  body.hem-shop-shell .review-summary__link,
+  body.hem-shop-shell .accordion__summary,
+  body.hem-shop-shell .accordion__tag,
+  body.hem-shop-shell .accordion__meta dt {
+    font-size: 0.8125rem !important;
+  }
+
+  body.hem-shop-shell .selector-selected,
+  body.hem-shop-shell .size-grid button,
+  body.hem-shop-shell .stock-state,
+  body.hem-shop-shell .quantity-stepper__value,
+  body.hem-shop-shell .product-detail__add-btn,
+  body.hem-shop-shell .accordion__text,
+  body.hem-shop-shell .accordion__list,
+  body.hem-shop-shell .accordion__material-group h4,
+  body.hem-shop-shell .accordion__material-info h4,
+  body.hem-shop-shell .product-card__title,
+  body.hem-shop-shell .product-card__price-amount,
+  body.hem-shop-shell .profile-order-line__name,
+  body.hem-shop-shell .cart-line__name,
+  body.hem-shop-shell .checkout-line__name,
+  body.hem-shop-shell .checkout-payment__method,
+  body.hem-shop-shell .checkout-address__field,
+  body.hem-shop-shell .order-detail,
+  body.hem-shop-shell .profile-panel {
+    font-size: 0.9375rem !important;
+  }
+
+  body.hem-shop-shell .accordion__meta dd,
+  body.hem-shop-shell .quantity-stepper__hint,
+  body.hem-shop-shell .stock-state__hint,
+  body.hem-shop-shell .profile-order-line__meta,
+  body.hem-shop-shell .cart-line__meta,
+  body.hem-shop-shell .checkout-line__meta,
+  body.hem-shop-shell .checkout-price-label,
+  body.hem-shop-shell .checkout-sidebar__note {
+    font-size: 0.875rem !important;
+  }
+
+  body.hem-shop-shell .product-detail__panel {
+    gap: 2rem !important;
+  }
+
+  body.hem-shop-shell .variant-selection {
+    gap: 1.5rem !important;
+    padding-top: 1.75rem !important;
+    padding-bottom: 1.75rem !important;
+  }
+
+  body.hem-shop-shell .color-options {
+    grid-template-columns: repeat(auto-fill, minmax(4.75rem, 1fr)) !important;
+    gap: 0.875rem !important;
+  }
+
+  body.hem-shop-shell .size-grid {
+    grid-template-columns: repeat(auto-fill, minmax(4.75rem, 1fr)) !important;
+    gap: 0.75rem !important;
+  }
+
+  body.hem-shop-shell .size-grid button,
+  body.hem-shop-shell .product-detail__add-btn {
+    min-height: 3.5rem !important;
+  }
+
+  body.hem-shop-shell .accordion__summary {
+    padding-top: 1.375rem !important;
+    padding-bottom: 1.375rem !important;
+  }
+
+  body.hem-shop-shell .accordion__body {
+    gap: 1rem !important;
+    line-height: 1.72 !important;
+  }
+
+  body.hem-admin-shell .admin-dashboard,
+  body.hem-admin-shell .admin-route-layout {
+    --font-size-xs: 0.8125rem;
+    --font-size-sm: 0.9375rem;
+    font-size: 1rem !important;
+  }
+
+  body.hem-admin-shell .admin-page-heading h1 {
+    font-size: 1.875rem !important;
+    line-height: 1.18 !important;
+  }
+
+  body.hem-admin-shell .admin-page-heading p,
+  body.hem-admin-shell .admin-panel__top h2,
+  body.hem-admin-shell .admin-toolbar input,
+  body.hem-admin-shell .admin-toolbar select,
+  body.hem-admin-shell .admin-toolbar button,
+  body.hem-admin-shell .admin-editor-form input,
+  body.hem-admin-shell .admin-editor-form select,
+  body.hem-admin-shell .admin-editor-form textarea,
+  body.hem-admin-shell .admin-editor-form button,
+  body.hem-admin-shell .admin-sidebar__button,
+  body.hem-admin-shell .admin-sidebar-subnav button,
+  body.hem-admin-shell .admin-profile-chip__content strong,
+  body.hem-admin-shell .admin-panel__link,
+  body.hem-admin-shell .dashboard-table,
+  body.hem-admin-shell .dashboard-table table,
+  body.hem-admin-shell .admin-status-list > p,
+  body.hem-admin-shell .admin-status-list span,
+  body.hem-admin-shell .admin-status-list strong,
+  body.hem-admin-shell .admin-rank-list > p > strong,
+  body.hem-admin-shell .admin-empty {
+    font-size: 0.9375rem !important;
+  }
+
+  body.hem-admin-shell .admin-page-trail,
+  body.hem-admin-shell .admin-panel__eyebrow,
+  body.hem-admin-shell .dashboard-table th,
+  body.hem-admin-shell .status,
+  body.hem-admin-shell .table-action,
+  body.hem-admin-shell .admin-editor-field > span,
+  body.hem-admin-shell .admin-editor-field > small,
+  body.hem-admin-shell .admin-chart__legend span,
+  body.hem-admin-shell .admin-chart__tooltip-row,
+  body.hem-admin-shell .admin-status-pct,
+  body.hem-admin-shell .admin-rank-list > p > small,
+  body.hem-admin-shell .admin-profile-chip__content small,
+  body.hem-admin-shell .admin-sidebar-logout {
+    font-size: 0.875rem !important;
+  }
+
+  body.hem-admin-shell .admin-stat-card p {
+    font-size: 0.9375rem !important;
+  }
+
+  body.hem-admin-shell .admin-stat-card strong {
+    font-size: 2.5rem !important;
+  }
+
+  body.hem-admin-shell .admin-stat-card span,
+  body.hem-admin-shell .admin-chart__column > small,
+  body.hem-admin-shell .admin-chart__tooltip-label {
+    font-size: 0.8125rem !important;
+  }
+
+  body.hem-admin-shell .admin-toolbar input,
+  body.hem-admin-shell .admin-toolbar select,
+  body.hem-admin-shell .admin-toolbar button,
+  body.hem-admin-shell .admin-editor-form input,
+  body.hem-admin-shell .admin-editor-form select,
+  body.hem-admin-shell .admin-editor-form textarea,
+  body.hem-admin-shell .admin-editor-form button {
+    min-height: 2.875rem !important;
+  }
+
+  body.hem-admin-shell .dashboard-table th,
+  body.hem-admin-shell .dashboard-table td {
+    padding: 1rem 1.125rem !important;
+  }
+
+  body.hem-admin-shell .admin-panel {
+    padding: 1.875rem 2rem !important;
+  }
+}
+
+/* Product detail presentation: use the TV canvas without stretching laptop layouts. */
+@media (min-width: 1440px) {
+  body.hem-shop-shell .product-detail-page {
+    width: calc(100% - var(--layout-gutter) - var(--layout-gutter)) !important;
+    max-width: none !important;
+  }
+
+  body.hem-shop-shell .product-detail-page .product-detail {
+    grid-template-columns: minmax(0, 1.38fr) minmax(31rem, 1fr) !important;
+    gap: clamp(3rem, 4vw, 5rem) !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  body.hem-shop-shell .product-detail-page .product-detail__visual,
+  body.hem-shop-shell .product-detail-page .product-gallery__main,
+  body.hem-shop-shell .product-detail-page .product-gallery__image-container {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  body.hem-shop-shell .product-detail-page .product-gallery {
+    width: min(100%, 46rem) !important;
+    max-width: 46rem !important;
+  }
+
+  body.hem-shop-shell .product-detail-page .product-detail__panel {
+    width: 100% !important;
+    max-width: 42rem !important;
+  }
+
+  body.hem-shop-shell .product-detail-page > .product-reviews {
+    width: 100% !important;
+    max-width: none !important;
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+  }
+
+  body.hem-shop-shell .product-detail-page .product-review-card__body,
+  body.hem-shop-shell .product-detail-page .product-review-card__text,
+  body.hem-shop-shell .product-detail-page .product-review-card__reply-text {
+    max-width: 78rem;
+  }
+
+  body.hem-shop-shell .product-detail-page .product-detail__recommendations,
+  body.hem-shop-shell .product-detail-page .product-detail__recommendations .landing-section {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  body.hem-shop-shell .product-detail-page .product-detail__recommendations .landing-section {
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+  }
+}
+
+@media (min-width: 1920px) {
+  body.hem-shop-shell .product-detail-page .product-gallery {
+    width: min(100%, 48rem) !important;
+    max-width: 48rem !important;
+  }
+
+  body.hem-shop-shell .product-detail-page .product-gallery__main-image {
+    max-height: 54rem !important;
+  }
+}
+
+@media (min-width: 1920px) {
+  :root {
+    --layout-max: 1760px !important;
+    --layout-gutter: 4rem !important;
+  }
+
+  .page-section,
+  .management-header__inner,
+  .site-footer__inner {
+    max-width: 1760px;
+  }
+
+  body.hem-shop-shell {
+    --store-header-height: 112px !important;
+  }
+
+  body.hem-shop-shell .store-promo,
+  body.hem-shop-shell .store-promo__inner,
+  body.hem-shop-shell .store-promo__item,
+  body.hem-shop-shell .store-promo__separator,
+  body.hem-shop-shell .store-promo__utility {
+    height: 34px !important;
+    min-height: 34px !important;
+  }
+
+  body.hem-shop-shell .store-header__inner {
+    height: 66px !important;
+  }
+
+  body.hem-shop-shell .store-action--search-pill {
+    height: 40px !important;
+  }
+
+  body.hem-shop-shell .store-header__nav-row,
+  body.hem-shop-shell .store-nav__link {
+    height: 46px !important;
+  }
+
+  body.hem-shop-shell .store-sale-strip {
+    min-height: 34px !important;
+  }
+
+  body.hem-shop-shell .brand-lockup__logo {
+    height: 42px !important;
+  }
+
+  body.hem-shop-shell .shop-results .shop-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  }
+
+  body.hem-shop-shell .landing-product-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+
+  body.hem-shop-shell .profile-view {
+    max-width: 1760px;
+  }
+
+  body.hem-shop-shell .site-footer__accent-bar,
+  body.hem-shop-shell .site-footer__container,
+  body.hem-shop-shell .site-footer__bottom {
+    width: min(100%, 1760px);
+  }
+
+  body.hem-admin-shell .admin-content > :not(.admin-topbar) {
+    --admin-content-max: 1520px;
+    width: min(100%, var(--admin-content-max));
+  }
+
+  body.hem-admin-shell .admin-dashboard-main {
+    grid-template-columns: minmax(0, 1.5fr) minmax(28rem, 1fr);
+  }
+
+  body.hem-shop-shell .product-info__title {
+    font-size: 2.625rem !important;
+  }
+
+  body.hem-shop-shell .product-price__current {
+    font-size: 2rem !important;
+  }
+
+  body.hem-shop-shell .product-price__label,
+  body.hem-shop-shell .product-badges__item,
+  body.hem-shop-shell .selector-label,
+  body.hem-shop-shell .size-guide-trigger,
+  body.hem-shop-shell .review-summary__link,
+  body.hem-shop-shell .accordion__summary,
+  body.hem-shop-shell .accordion__tag,
+  body.hem-shop-shell .accordion__meta dt {
+    font-size: 0.875rem !important;
+  }
+
+  body.hem-shop-shell .selector-selected,
+  body.hem-shop-shell .size-grid button,
+  body.hem-shop-shell .stock-state,
+  body.hem-shop-shell .quantity-stepper__value,
+  body.hem-shop-shell .product-detail__add-btn,
+  body.hem-shop-shell .accordion__text,
+  body.hem-shop-shell .accordion__list,
+  body.hem-shop-shell .accordion__material-group h4,
+  body.hem-shop-shell .accordion__material-info h4,
+  body.hem-shop-shell .product-card__title,
+  body.hem-shop-shell .product-card__price-amount,
+  body.hem-shop-shell .profile-order-line__name,
+  body.hem-shop-shell .cart-line__name,
+  body.hem-shop-shell .checkout-line__name,
+  body.hem-shop-shell .checkout-payment__method,
+  body.hem-shop-shell .checkout-address__field,
+  body.hem-shop-shell .order-detail,
+  body.hem-shop-shell .profile-panel {
+    font-size: 1rem !important;
+  }
+
+  body.hem-shop-shell .accordion__meta dd,
+  body.hem-shop-shell .quantity-stepper__hint,
+  body.hem-shop-shell .stock-state__hint,
+  body.hem-shop-shell .profile-order-line__meta,
+  body.hem-shop-shell .cart-line__meta,
+  body.hem-shop-shell .checkout-line__meta,
+  body.hem-shop-shell .checkout-price-label,
+  body.hem-shop-shell .checkout-sidebar__note {
+    font-size: 0.9375rem !important;
+  }
+
+  body.hem-admin-shell .admin-page-heading h1 {
+    font-size: 2rem !important;
+  }
+
+  body.hem-admin-shell .admin-page-heading p,
+  body.hem-admin-shell .admin-panel__top h2,
+  body.hem-admin-shell .admin-toolbar input,
+  body.hem-admin-shell .admin-toolbar select,
+  body.hem-admin-shell .admin-toolbar button,
+  body.hem-admin-shell .admin-editor-form input,
+  body.hem-admin-shell .admin-editor-form select,
+  body.hem-admin-shell .admin-editor-form textarea,
+  body.hem-admin-shell .admin-editor-form button,
+  body.hem-admin-shell .admin-sidebar__button,
+  body.hem-admin-shell .admin-sidebar-subnav button,
+  body.hem-admin-shell .admin-profile-chip__content strong,
+  body.hem-admin-shell .admin-panel__link,
+  body.hem-admin-shell .dashboard-table,
+  body.hem-admin-shell .dashboard-table table,
+  body.hem-admin-shell .admin-status-list > p,
+  body.hem-admin-shell .admin-status-list span,
+  body.hem-admin-shell .admin-status-list strong,
+  body.hem-admin-shell .admin-rank-list > p > strong,
+  body.hem-admin-shell .admin-empty {
+    font-size: 1rem !important;
+  }
+
+  body.hem-admin-shell .admin-page-trail,
+  body.hem-admin-shell .admin-panel__eyebrow,
+  body.hem-admin-shell .dashboard-table th,
+  body.hem-admin-shell .status,
+  body.hem-admin-shell .table-action,
+  body.hem-admin-shell .admin-editor-field > span,
+  body.hem-admin-shell .admin-editor-field > small,
+  body.hem-admin-shell .admin-chart__legend span,
+  body.hem-admin-shell .admin-chart__tooltip-row,
+  body.hem-admin-shell .admin-status-pct,
+  body.hem-admin-shell .admin-rank-list > p > small,
+  body.hem-admin-shell .admin-profile-chip__content small,
+  body.hem-admin-shell .admin-sidebar-logout {
+    font-size: 0.9375rem !important;
+  }
+
+  body.hem-admin-shell .admin-stat-card strong {
+    font-size: 2.75rem !important;
+  }
+}
+
+/* Order detail prioritizes product information over account navigation and totals. */
+@media (min-width: 1101px) {
+  body.hem-shop-shell .profile-view--order-detail .profile-layout {
+    grid-template-columns: minmax(17rem, 19rem) minmax(0, 1fr) !important;
+    gap: clamp(2rem, 3vw, 3.5rem) !important;
+  }
+
+  body.hem-shop-shell .profile-view--order-detail .profile-order-detail__grid {
+    grid-template-columns: minmax(0, 1fr) minmax(23rem, 25rem) !important;
+    gap: 1.25rem !important;
+  }
+}
+
+@media (min-width: 1920px) {
+  body.hem-shop-shell .profile-view--order-detail .profile-layout {
+    grid-template-columns: 20rem minmax(0, 1fr) !important;
+    gap: 3.5rem !important;
+  }
+
+  body.hem-shop-shell .profile-view--order-detail .profile-order-detail__grid {
+    grid-template-columns: minmax(0, 1fr) 26rem !important;
+  }
+}
+
+@media (min-width: 1440px) {
+  body.hem-shop-shell .profile-order__head-right .profile-order__request-badge,
+  body.hem-shop-shell .profile-order__head-right .profile-order__status-badge {
+    box-sizing: border-box !important;
+    min-height: 2.5rem !important;
+    padding: 0 1rem !important;
+    font-size: 1rem !important;
+    line-height: 1.25 !important;
+    letter-spacing: 0 !important;
+  }
+
+  body.hem-shop-shell .profile-order-line--summary .profile-order-line__quantity {
+    min-height: 2rem !important;
+    padding: 0.25rem 0.75rem !important;
+    font-size: 0.9375rem !important;
+    line-height: 1.2 !important;
+    border-color: #111111 !important;
+    background: #111111 !important;
+    color: #ffffff !important;
+    text-transform: uppercase !important;
+  }
+
+  body.hem-shop-shell .profile-order-line--summary .profile-order-line__total-label {
+    font-size: 0.8125rem !important;
+    font-weight: 750 !important;
+    line-height: 1.2 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+  }
+
+  body.hem-shop-shell .profile-order-line--summary .order-price-label {
+    font-size: 0.8125rem !important;
+    line-height: 1.2 !important;
+    letter-spacing: 0.04em !important;
+  }
+
+  body.hem-shop-shell .profile-order-line--summary .price-current {
+    font-size: 1.125rem !important;
+    line-height: 1.25 !important;
+  }
+}
+
+@media (min-width: 1920px) {
+  body.hem-shop-shell .profile-order__head-right .profile-order__request-badge,
+  body.hem-shop-shell .profile-order__head-right .profile-order__status-badge {
+    min-height: 2.75rem !important;
+    padding-right: 1.125rem !important;
+    padding-left: 1.125rem !important;
+    font-size: 1.0625rem !important;
+  }
+}
+
+/*
+ * Auto presentation readability.
+ * Laptop/normal desktop keep the native component sizing. From wide desktop up,
+ * text, controls, admin tables, and card metadata scale with bounded clamps so
+ * the UI remains readable on classroom TV/projector demos without becoming huge.
+ */
+@media (min-width: 1440px) {
+  body.hem-shop-shell {
+    --shop-auto-body: clamp(1rem, 0.9rem + 0.16vw, 1.125rem);
+    --shop-auto-small: clamp(0.875rem, 0.78rem + 0.12vw, 1rem);
+    --shop-auto-micro: clamp(0.8125rem, 0.72rem + 0.1vw, 0.9375rem);
+    --shop-auto-card-title: clamp(1rem, 0.88rem + 0.16vw, 1.125rem);
+    --shop-auto-card-price: clamp(1.0625rem, 0.92rem + 0.18vw, 1.1875rem);
+    --shop-auto-card-meta: clamp(0.8125rem, 0.72rem + 0.1vw, 0.9375rem);
+    --shop-auto-section-title: clamp(1.75rem, 1.35rem + 0.52vw, 2.25rem);
+    --shop-auto-rail-card-width: clamp(15rem, 16.6vw, 18.25rem);
+  }
+
+  body.hem-shop-shell .shop-layout {
+    font-size: var(--shop-auto-body) !important;
+  }
+
+  body.hem-shop-shell .store-promo__item,
+  body.hem-shop-shell .account-login,
+  body.hem-shop-shell .account-menu__trigger,
+  body.hem-shop-shell .store-action-labeled,
+  body.hem-shop-shell .store-action--search-pill,
+  body.hem-shop-shell .search-drawer .search-drawer__form input[type='search'],
+  body.hem-shop-shell .search-drawer .search-drawer__form input[type='search']::placeholder,
+  body.hem-shop-shell .search-drawer__suggestion-label,
+  body.hem-shop-shell .mega-menu__drill-item,
+  body.hem-shop-shell .mega-menu a {
+    font-size: var(--shop-auto-small) !important;
+  }
+
+  body.hem-shop-shell .catalog-meta,
+  body.hem-shop-shell .catalog-tabs__button,
+  body.hem-shop-shell .catalog-filter__trigger,
+  body.hem-shop-shell .search-drawer__label,
+  body.hem-shop-shell .search-drawer__suggestion-meta,
+  body.hem-shop-shell .product-card__badge,
+  body.hem-shop-shell .product-card__meta-line,
+  body.hem-shop-shell .product-card__rating,
+  body.hem-shop-shell .product-card__price-label,
+  body.hem-shop-shell .product-card__discount {
+    font-size: var(--shop-auto-card-meta) !important;
+  }
+
+  body.hem-shop-shell .search-drawer .search-drawer__form input[type='search'],
+  body.hem-shop-shell .search-drawer .search-drawer__form input[type='search']::placeholder {
+    font-size: clamp(1.125rem, 1rem + 0.16vw, 1.25rem) !important;
+  }
+
+  body.hem-shop-shell .search-drawer__column-title,
+  body.hem-shop-shell .search-drawer__product-grid .product-preview-grid h2 {
+    font-size: clamp(1.25rem, 1.08rem + 0.2vw, 1.375rem) !important;
+    font-weight: 700 !important;
+  }
+
+  body.hem-shop-shell .search-drawer__suggestion-label,
+  body.hem-shop-shell .search-drawer__history-keyword,
+  body.hem-shop-shell .search-drawer__view-all {
+    font-size: clamp(1rem, 0.9rem + 0.12vw, 1.125rem) !important;
+  }
+
+  body.hem-shop-shell .search-drawer__suggestions--popular .search-drawer__suggestion-label {
+    font-size: clamp(1.125rem, 1rem + 0.16vw, 1.3125rem) !important;
+  }
+
+  body.hem-shop-shell .search-drawer__label,
+  body.hem-shop-shell .search-drawer__clear,
+  body.hem-shop-shell .search-drawer__suggestion-meta,
+  body.hem-shop-shell .search-drawer__history-date,
+  body.hem-shop-shell .search-drawer__state {
+    font-size: clamp(0.875rem, 0.8rem + 0.1vw, 1rem) !important;
+  }
+
+  body.hem-shop-shell .product-card__title {
+    font-size: var(--shop-auto-card-title) !important;
+    line-height: 1.38 !important;
+  }
+
+  body.hem-shop-shell .product-card__price-amount {
+    font-size: var(--shop-auto-card-price) !important;
+    line-height: 1.3 !important;
+  }
+
+  body.hem-shop-shell .product-card__price-original,
+  body.hem-shop-shell .product-card__price-prefix {
+    font-size: var(--shop-auto-small) !important;
+  }
+
+  body.hem-shop-shell .landing-section,
+  body.hem-shop-shell .landing-group-showcases,
+  body.hem-shop-shell .product-preview-grid {
+    --size-10: var(--shop-auto-card-meta) !important;
+    --size-11: var(--shop-auto-small) !important;
+    --size-13: var(--shop-auto-card-title) !important;
+  }
+
+  body.hem-shop-shell .landing-section,
+  body.hem-shop-shell .landing-group-showcases {
+    --landing-product-card-width: var(--shop-auto-rail-card-width) !important;
+  }
+
+  body.hem-shop-shell .landing-section h2,
+  body.hem-shop-shell .landing-group h2,
+  body.hem-shop-shell .circle-rail h2,
+  body.hem-shop-shell .hot-collection-rail h2,
+  body.hem-shop-shell .product-reviews__eyebrow,
+  body.hem-shop-shell .product-preview-grid h2 {
+    font-size: var(--shop-auto-section-title) !important;
+  }
+
+  body.hem-shop-shell .landing-section h2,
+  body.hem-shop-shell .landing-group h2,
+  body.hem-shop-shell .circle-rail h2,
+  body.hem-shop-shell .hot-collection-rail h2 {
+    line-height: 1.05 !important;
+    letter-spacing: 0 !important;
+    font-weight: 800 !important;
+  }
+
+  body.hem-shop-shell .landing-group__section-head h3 {
+    color: rgba(17, 17, 17, 0.56) !important;
+    font-size: clamp(1.55rem, 1.15rem + 0.52vw, 2.05rem) !important;
+    line-height: 1.05 !important;
+    letter-spacing: 0.08em !important;
+    font-weight: 850 !important;
+    text-transform: uppercase !important;
+  }
+
+  body.hem-shop-shell .shop-results .shop-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  body.hem-shop-shell .product-preview-grid {
+    --preview-grid-columns: 4 !important;
+  }
+
+  body.hem-shop-shell .product-card__content,
+  body.hem-shop-shell .shop-grid .product-card__content,
+  body.hem-shop-shell .landing-product-rail__item .product-card__content,
+  body.hem-shop-shell .product-preview-grid__item .product-card__content {
+    padding: clamp(0.875rem, 0.7rem + 0.32vw, 1.25rem) clamp(0.875rem, 0.7rem + 0.3vw, 1.25rem) clamp(1.125rem, 0.9rem + 0.3vw, 1.5rem) !important;
+  }
+
+  body.hem-shop-shell .product-info__title {
+    font-size: clamp(2.375rem, 1.8rem + 0.8vw, 3rem) !important;
+  }
+
+  body.hem-shop-shell .product-price__current {
+    font-size: clamp(1.875rem, 1.45rem + 0.5vw, 2.375rem) !important;
+  }
+
+  body.hem-shop-shell .selector-label,
+  body.hem-shop-shell .size-guide-trigger,
+  body.hem-shop-shell .review-summary__link,
+  body.hem-shop-shell .accordion__summary,
+  body.hem-shop-shell .accordion__tag,
+  body.hem-shop-shell .product-badges__item {
+    font-size: var(--shop-auto-micro) !important;
+  }
+
+  body.hem-shop-shell .selector-selected,
+  body.hem-shop-shell .size-grid button,
+  body.hem-shop-shell .stock-state,
+  body.hem-shop-shell .quantity-stepper__value,
+  body.hem-shop-shell .product-detail__add-btn,
+  body.hem-shop-shell .accordion__text,
+  body.hem-shop-shell .accordion__list,
+  body.hem-shop-shell .profile-order-line__name,
+  body.hem-shop-shell .cart-line__name,
+  body.hem-shop-shell .checkout-line__name,
+  body.hem-shop-shell .checkout-payment__method,
+  body.hem-shop-shell .checkout-address__field {
+    font-size: var(--shop-auto-small) !important;
+  }
+
+  body.hem-admin-shell {
+    --admin-auto-body: clamp(1rem, 0.9rem + 0.14vw, 1.125rem);
+    --admin-auto-small: clamp(0.875rem, 0.78rem + 0.12vw, 1rem);
+    --admin-auto-micro: clamp(0.8125rem, 0.72rem + 0.1vw, 0.9375rem);
+    --admin-auto-heading: clamp(1.875rem, 1.35rem + 0.6vw, 2.375rem);
+  }
+
+  body.hem-admin-shell .admin-dashboard,
+  body.hem-admin-shell .admin-route-layout {
+    font-size: var(--admin-auto-body) !important;
+  }
+
+  body.hem-admin-shell .admin-page-heading h1 {
+    font-size: var(--admin-auto-heading) !important;
+    line-height: 1.16 !important;
+  }
+
+  body.hem-admin-shell .admin-sidebar__button,
+  body.hem-admin-shell .admin-sidebar-subnav button,
+  body.hem-admin-shell .admin-profile-chip__content strong,
+  body.hem-admin-shell .admin-toolbar input,
+  body.hem-admin-shell .admin-toolbar select,
+  body.hem-admin-shell .admin-toolbar button,
+  body.hem-admin-shell .admin-editor-form input,
+  body.hem-admin-shell .admin-editor-form select,
+  body.hem-admin-shell .admin-editor-form textarea,
+  body.hem-admin-shell .admin-editor-form button,
+  body.hem-admin-shell .dashboard-table,
+  body.hem-admin-shell .dashboard-table table,
+  body.hem-admin-shell .admin-stock-product-cell strong,
+  body.hem-admin-shell .admin-panel__top h2,
+  body.hem-admin-shell .admin-empty {
+    font-size: var(--admin-auto-small) !important;
+  }
+
+  body.hem-admin-shell .admin-page-trail,
+  body.hem-admin-shell .admin-panel__eyebrow,
+  body.hem-admin-shell .dashboard-table th,
+  body.hem-admin-shell .status,
+  body.hem-admin-shell .table-action,
+  body.hem-admin-shell .admin-editor-field > span,
+  body.hem-admin-shell .admin-editor-field > small,
+  body.hem-admin-shell .admin-profile-chip__content small,
+  body.hem-admin-shell .admin-sidebar-logout,
+  body.hem-admin-shell .admin-stock-product-cell small {
+    font-size: var(--admin-auto-micro) !important;
+  }
+
+  body.hem-admin-shell .dashboard-table th,
+  body.hem-admin-shell .dashboard-table td {
+    padding: clamp(0.875rem, 0.75rem + 0.16vw, 1.125rem) clamp(1rem, 0.82rem + 0.26vw, 1.375rem) !important;
+  }
+
+  body.hem-admin-shell .admin-toolbar input,
+  body.hem-admin-shell .admin-toolbar select,
+  body.hem-admin-shell .admin-toolbar button,
+  body.hem-admin-shell .admin-editor-form input,
+  body.hem-admin-shell .admin-editor-form select,
+  body.hem-admin-shell .admin-editor-form textarea,
+  body.hem-admin-shell .admin-editor-form button {
+    min-height: clamp(2.875rem, 2.5rem + 0.5vw, 3.375rem) !important;
+  }
+}
+
+@media (min-width: 1920px) {
+  body.hem-shop-shell {
+    --layout-max: 1760px !important;
+    --shop-auto-body: clamp(1.0625rem, 0.9rem + 0.22vw, 1.25rem);
+    --shop-auto-small: clamp(0.9375rem, 0.78rem + 0.2vw, 1.125rem);
+    --shop-auto-micro: clamp(0.875rem, 0.74rem + 0.16vw, 1rem);
+    --shop-auto-card-title: clamp(1.0625rem, 0.86rem + 0.26vw, 1.25rem);
+    --shop-auto-card-price: clamp(1.1875rem, 0.95rem + 0.3vw, 1.375rem);
+    --shop-auto-card-meta: clamp(0.875rem, 0.74rem + 0.16vw, 1rem);
+    --shop-auto-section-title: clamp(2rem, 1.35rem + 0.75vw, 2.75rem);
+    --shop-auto-rail-card-width: clamp(15rem, 14.5vw, 18rem);
+  }
+
+  body.hem-shop-shell .shop-results .shop-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  }
+
+  body.hem-shop-shell .product-gallery {
+    max-width: min(34vw, 34rem) !important;
+  }
+
+  body.hem-shop-shell .product-gallery__main,
+  body.hem-shop-shell .product-gallery__image-container {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+  }
+
+  body.hem-shop-shell .product-gallery__main-image {
+    width: auto !important;
+    max-width: 100% !important;
+    max-height: calc(100vh - var(--store-header-height, 170px) - 7rem) !important;
+    margin-right: auto !important;
+    margin-left: auto !important;
+  }
+
+  body.hem-admin-shell {
+    --admin-content-max: 1600px;
+    --admin-auto-body: clamp(1.0625rem, 0.9rem + 0.2vw, 1.25rem);
+    --admin-auto-small: clamp(0.9375rem, 0.78rem + 0.18vw, 1.125rem);
+    --admin-auto-micro: clamp(0.875rem, 0.74rem + 0.16vw, 1rem);
+    --admin-auto-heading: clamp(2rem, 1.35rem + 0.75vw, 2.625rem);
+  }
+
+  body.hem-admin-shell .admin-content > :not(.admin-topbar) {
+    width: min(100%, var(--admin-content-max)) !important;
+  }
+
+  body.hem-admin-shell .admin-stat-card strong {
+    font-size: clamp(2.75rem, 2.1rem + 0.8vw, 3.5rem) !important;
+  }
+}
+
+/* Match the visible logo-to-ticker space to the header's outer gutter. */
+@media (min-width: 1200px) and (max-width: 1439px) {
+  body.hem-shop-shell .store-promo::after {
+    content: '';
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: clamp(18px, 2.4vw, 42px);
+    background: var(--header-surface, #ffffff);
+    pointer-events: none;
+  }
+}
+
+/* Wide-screen storefront header: readable controls without crowding the search field. */
+@media (min-width: 1440px) {
+  body.hem-shop-shell {
+    --store-header-height: 130px !important;
+  }
+
+  body.hem-shop-shell .store-header__inner {
+    grid-template-columns:
+      136px
+      minmax(300px, 1fr)
+      480px
+      300px !important;
+    gap: 24px !important;
+    height: 76px !important;
+    padding-right: clamp(60px, 4.1667vw, 80px) !important;
+    padding-left: clamp(60px, 4.1667vw, 80px) !important;
+  }
+
+  body.hem-shop-shell .store-promo {
+    justify-self: start;
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  body.hem-shop-shell .store-promo::after {
+    content: '';
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: clamp(60px, 4.1667vw, 80px);
+    background: var(--header-surface, #ffffff);
+    pointer-events: none;
+  }
+
+  body.hem-shop-shell .store-promo,
+  body.hem-shop-shell .store-promo__inner,
+  body.hem-shop-shell .store-promo__item,
+  body.hem-shop-shell .store-promo__separator {
+    height: 42px !important;
+    min-height: 42px !important;
+  }
+
+  body.hem-shop-shell .store-promo__item {
+    gap: 0.4rem !important;
+    padding-right: 0.75rem !important;
+    padding-left: 0.75rem !important;
+    font-size: clamp(17px, 0.92vw, 18px) !important;
+    line-height: 1.2 !important;
+  }
+
+  body.hem-shop-shell .store-promo__item svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  body.hem-shop-shell .brand-lockup__logo {
+    height: 52px !important;
+  }
+
+  body.hem-shop-shell .store-action--search-pill {
+    width: 100% !important;
+    max-width: 480px !important;
+    height: 48px !important;
+    padding-right: 1.125rem !important;
+    padding-left: 1.125rem !important;
+    font-size: clamp(1.0625rem, 0.94rem + 0.14vw, 1.25rem) !important;
+    font-weight: 600 !important;
+  }
+
+  body.hem-shop-shell .store-action--search-pill svg {
+    width: 1.4375rem !important;
+    height: 1.4375rem !important;
+  }
+
+  body.hem-shop-shell .store-actions {
+    gap: clamp(0.5rem, 0.7vw, 0.875rem) !important;
+  }
+
+  body.hem-shop-shell .store-action-labeled,
+  body.hem-shop-shell .account-login,
+  body.hem-shop-shell .account-menu__trigger {
+    min-width: 4rem !important;
+    min-height: 3.75rem !important;
+    gap: 0.25rem !important;
+    font-size: clamp(1.0625rem, 0.94rem + 0.14vw, 1.25rem) !important;
+    line-height: 1.1 !important;
+  }
+
+  body.hem-shop-shell .store-action-labeled svg,
+  body.hem-shop-shell .account-login svg,
+  body.hem-shop-shell .account-menu__trigger svg {
+    width: 1.8125rem !important;
+    height: 1.8125rem !important;
+  }
+
+  body.hem-shop-shell .store-action__badge--cart {
+    top: -2px !important;
+    right: 2px !important;
+    z-index: 2 !important;
+    min-width: 24px !important;
+    height: 24px !important;
+    padding-right: 6px !important;
+    padding-left: 6px !important;
+    border: 2px solid #ffffff !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+  }
+
+  body.hem-shop-shell .store-header__nav-row,
+  body.hem-shop-shell .store-nav__link {
+    height: 54px !important;
+  }
+
+  body.hem-shop-shell .store-header__nav-row {
+    gap: clamp(2rem, 3.5vw, 4.5rem) !important;
+  }
+
+  body.hem-shop-shell .store-nav__link,
+  body.hem-shop-shell .store-nav__link--button {
+    font-size: clamp(21px, 1.12vw, 23px) !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+  }
+
+  body.hem-shop-shell .store-nav-promos a {
+    font-size: clamp(19px, 1vw, 21px) !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+  }
+
+  body.hem-shop-shell .store-sale-strip {
+    min-height: 40px !important;
+    gap: 0.75rem !important;
+    font-size: clamp(15px, 0.83vw, 16px) !important;
+    font-weight: 700 !important;
+  }
+
+  body.hem-shop-shell .store-sale-strip__timer {
+    padding: 0.3rem 0.625rem !important;
+    font-size: clamp(14px, 0.78vw, 15px) !important;
+  }
+
+  body.hem-shop-shell .store-sale-strip__close {
+    width: 2.125rem !important;
+    height: 2.125rem !important;
+  }
+
+  body.hem-shop-shell .store-sale-strip__close svg {
+    width: 1.125rem !important;
+    height: 1.125rem !important;
+  }
+
+  body.hem-shop-shell .page-section.shop-view--landing {
+    width: min(2200px, calc(100% - 80px)) !important;
+    max-width: none !important;
+  }
+}
+
+@media (min-width: 1920px) {
+  body.hem-shop-shell .brand-lockup__logo {
+    height: 52px !important;
+  }
+}
+
+@media (min-width: 2560px) {
+  body.hem-shop-shell {
+    --layout-max: 1840px !important;
+  }
+
+  body.hem-admin-shell {
+    --admin-content-max: 1680px;
+  }
+}
+
+/* Admin Orders needs stronger presentation sizing because it is mostly dense table text. */
+@media (min-width: 1440px) {
+  body.hem-admin-shell .admin-toolbar input,
+  body.hem-admin-shell .admin-toolbar select {
+    min-height: clamp(3.125rem, 2.75rem + 0.42vw, 3.5rem) !important;
+    padding-right: 1.125rem !important;
+    padding-left: 1.125rem !important;
+    font-size: clamp(1rem, 0.88rem + 0.18vw, 1.125rem) !important;
+    line-height: 1.35 !important;
+  }
+
+  body.hem-admin-shell .admin-toolbar input::placeholder {
+    font-size: clamp(1rem, 0.88rem + 0.18vw, 1.125rem) !important;
+  }
+
+  body.hem-admin-shell .admin-orders-table table {
+    min-width: 0 !important;
+    table-layout: fixed !important;
+    font-size: clamp(1rem, 0.88rem + 0.18vw, 1.125rem) !important;
+  }
+
+  body.hem-admin-shell .admin-orders-table th {
+    padding: clamp(0.875rem, 0.76rem + 0.16vw, 1.125rem) clamp(0.75rem, 0.65rem + 0.14vw, 1rem) !important;
+    font-size: clamp(0.9375rem, 0.82rem + 0.16vw, 1.0625rem) !important;
+    line-height: 1.25 !important;
+  }
+
+  body.hem-admin-shell .admin-orders-table td,
+  body.hem-admin-shell .admin-orders-table__customer strong,
+  body.hem-admin-shell .admin-order-summary,
+  body.hem-admin-shell .admin-order-summary strong,
+  body.hem-admin-shell .admin-order-summary span,
+  body.hem-admin-shell .admin-orders-table__date,
+  body.hem-admin-shell .admin-orders-table__total {
+    font-size: clamp(1rem, 0.88rem + 0.18vw, 1.125rem) !important;
+    line-height: 1.45 !important;
+  }
+
+  body.hem-admin-shell .admin-orders-table td {
+    padding-right: clamp(0.75rem, 0.65rem + 0.14vw, 1rem) !important;
+    padding-left: clamp(0.75rem, 0.65rem + 0.14vw, 1rem) !important;
+  }
+
+  body.hem-admin-shell .admin-orders-table .status {
+    min-height: clamp(1.75rem, 1.5rem + 0.28vw, 2rem) !important;
+    padding-right: 0.75rem !important;
+    padding-left: 0.75rem !important;
+    font-size: clamp(0.9375rem, 0.82rem + 0.16vw, 1.0625rem) !important;
+    line-height: 1.2 !important;
+  }
+
+  body.hem-admin-shell .admin-orders-table__payment,
+  body.hem-admin-shell .admin-orders-table__status,
+  body.hem-admin-shell .admin-orders-table__payment .status,
+  body.hem-admin-shell .admin-orders-table__status .status {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  body.hem-admin-shell .stock-status {
+    width: auto !important;
+    min-width: 0 !important;
+    min-height: clamp(1.75rem, 1.5rem + 0.28vw, 2rem) !important;
+    padding-right: 0.75rem !important;
+    padding-left: 0.75rem !important;
+    font-size: clamp(0.9375rem, 0.82rem + 0.16vw, 1.0625rem) !important;
+    line-height: 1.2 !important;
+  }
+
+  body.hem-admin-shell .admin-section-stats--orders {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 0.875rem !important;
+  }
+
+  body.hem-admin-shell .admin-section-stats--orders .admin-stat-card {
+    min-height: 5.75rem !important;
+    padding: 0.75rem 1rem !important;
+  }
+
+  body.hem-admin-shell .admin-section-stats--orders .admin-stat-card strong {
+    margin-bottom: 0 !important;
+    font-size: clamp(2rem, 1.7rem + 0.35vw, 2.5rem) !important;
+  }
+
+  body.hem-admin-shell .admin-orders-table .table-action {
+    min-height: clamp(2.5rem, 2.15rem + 0.42vw, 2.875rem) !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    padding-right: 0.625rem !important;
+    padding-left: 0.625rem !important;
+    font-size: clamp(1rem, 0.88rem + 0.18vw, 1.125rem) !important;
+    line-height: 1.25 !important;
+  }
+
+  body.hem-admin-shell .admin-pagination {
+    font-size: clamp(0.9375rem, 0.82rem + 0.16vw, 1.0625rem) !important;
+  }
+}
+
+/* User profile needs stronger reading sizes on desktop dashboards. */
+@media (min-width: 1440px) {
+  body.hem-shop-shell {
+    --profile-readable-title: 1.75rem;
+    --profile-readable-subtitle: 1.125rem;
+    --profile-readable-body: 1rem;
+    --profile-readable-small: 0.9375rem;
+    --profile-readable-micro: 0.875rem;
+  }
+
+  body.hem-shop-shell .profile-view {
+    max-width: 1760px !important;
+    padding-right: 4rem !important;
+    padding-left: 4rem !important;
+    font-size: var(--profile-readable-body) !important;
+  }
+
+  body.hem-shop-shell .profile-layout {
+    grid-template-columns: minmax(21rem, 25rem) minmax(0, 1fr) !important;
+    gap: 5rem !important;
+  }
+
+  body.hem-shop-shell .profile-view .page-breadcrumbs__link,
+  body.hem-shop-shell .profile-view .page-breadcrumbs__current,
+  body.hem-shop-shell .profile-view .page-breadcrumbs__separator,
+  body.hem-shop-shell .profile-view .eyebrow,
+  body.hem-shop-shell .profile-summary__eyebrow,
+  body.hem-shop-shell .profile-summary__member-code,
+  body.hem-shop-shell .profile-panel__count,
+  body.hem-shop-shell .profile-order-detail__id-label,
+  body.hem-shop-shell .profile-order-detail__topbar-title .eyebrow,
+  body.hem-shop-shell .profile-order-detail__card-label,
+  body.hem-shop-shell .profile-order-shipping-title,
+  body.hem-shop-shell .profile-order-shipping-card dt,
+  body.hem-shop-shell .profile-order-detail__facts dt,
+  body.hem-shop-shell .profile-order__status-badge,
+  body.hem-shop-shell .profile-review blockquote span,
+  body.hem-shop-shell .coupon-card__status,
+  body.hem-shop-shell .coupon-card__meta-label,
+  body.hem-shop-shell .coupon-card__copy,
+  body.hem-shop-shell .order-price-label,
+  body.hem-shop-shell .change-password-field > span:first-child,
+  body.hem-shop-shell .change-password-strength span,
+  body.hem-shop-shell .profile-confirm-dialog__field span,
+  body.hem-shop-shell .profile-order-review label {
+    font-size: var(--profile-readable-micro) !important;
+    line-height: 1.35 !important;
+    letter-spacing: 0 !important;
+  }
+
+  body.hem-shop-shell .profile-sidebar__heading strong {
+    font-size: var(--profile-readable-subtitle) !important;
+    line-height: 1.25 !important;
+    letter-spacing: 0 !important;
+  }
+
+  body.hem-shop-shell .profile-sidebar__label,
+  body.hem-shop-shell .profile-sidebar__button--logout,
+  body.hem-shop-shell .profile-sidebar__button--logout span,
+  body.hem-shop-shell .profile-summary__identity p,
+  body.hem-shop-shell .profile-summary__metric div > span,
+  body.hem-shop-shell .profile-settings__block p,
+  body.hem-shop-shell .profile-settings__readout,
+  body.hem-shop-shell .profile-address-card__name,
+  body.hem-shop-shell .profile-address-card__receiver,
+  body.hem-shop-shell .profile-address-card__line,
+  body.hem-shop-shell .profile-payment-empty p,
+  body.hem-shop-shell .profile-form label span,
+  body.hem-shop-shell .profile-form input,
+  body.hem-shop-shell .profile-form select,
+  body.hem-shop-shell .profile-order-search input,
+  body.hem-shop-shell .profile-order-tabs__button,
+  body.hem-shop-shell .profile-order__id,
+  body.hem-shop-shell .profile-order__date,
+  body.hem-shop-shell .profile-order__summary,
+  body.hem-shop-shell .profile-order__summary strong,
+  body.hem-shop-shell .profile-order-line__name,
+  body.hem-shop-shell .profile-order-line__meta,
+  body.hem-shop-shell .profile-order-line__price,
+  body.hem-shop-shell .profile-order-line__quantity,
+  body.hem-shop-shell .profile-order-line__summary-side,
+  body.hem-shop-shell .profile-order-line__line-total,
+  body.hem-shop-shell .profile-order-detail__heading span,
+  body.hem-shop-shell .profile-order-detail__muted,
+  body.hem-shop-shell .profile-order-detail__facts dd,
+  body.hem-shop-shell .profile-order-shipping-card dd,
+  body.hem-shop-shell .profile-order-timeline__item strong,
+  body.hem-shop-shell .profile-order-timeline__item p,
+  body.hem-shop-shell .profile-order-timeline__item small,
+  body.hem-shop-shell .profile-order-detail__cancelled span,
+  body.hem-shop-shell .profile-order-detail__cancelled p,
+  body.hem-shop-shell .profile-order-detail__return span,
+  body.hem-shop-shell .profile-order-detail__return p,
+  body.hem-shop-shell .profile-review__product,
+  body.hem-shop-shell .profile-review__body > small,
+  body.hem-shop-shell .profile-review p,
+  body.hem-shop-shell .profile-review blockquote,
+  body.hem-shop-shell .profile-review__editor textarea,
+  body.hem-shop-shell .profile-list-pagination span,
+  body.hem-shop-shell .profile-orders-pagination span,
+  body.hem-shop-shell .coupon-card__meta-value,
+  body.hem-shop-shell .change-password-card__top > p:not(.eyebrow),
+  body.hem-shop-shell .change-password-field input,
+  body.hem-shop-shell .change-password-rules li,
+  body.hem-shop-shell .change-password-error,
+  body.hem-shop-shell .change-password-message,
+  body.hem-shop-shell .profile-confirm-dialog > p:not(.eyebrow),
+  body.hem-shop-shell .profile-confirm-dialog__field textarea,
+  body.hem-shop-shell .profile-confirm-dialog__field select,
+  body.hem-shop-shell .profile-order-review textarea {
+    font-size: var(--profile-readable-body) !important;
+    line-height: 1.55 !important;
+  }
+
+  body.hem-shop-shell .profile-order-line__line-total small {
+    font-size: var(--profile-readable-micro) !important;
+    line-height: 1.3 !important;
+    letter-spacing: 0 !important;
+  }
+
+  body.hem-shop-shell .profile-panel__top h1,
+  body.hem-shop-shell .profile-settings .profile-panel__top h1,
+  body.hem-shop-shell .profile-order-detail__topbar-id,
+  body.hem-shop-shell .profile-confirm-dialog h2 {
+    font-size: var(--profile-readable-title) !important;
+    line-height: 1.2 !important;
+    letter-spacing: 0 !important;
+  }
+
+  body.hem-shop-shell .profile-summary__identity h1 {
+    font-size: 2.375rem !important;
+    line-height: 1.12 !important;
+    letter-spacing: 0 !important;
+  }
+
+  body.hem-shop-shell .profile-summary__metric strong {
+    font-size: 2.375rem !important;
+    line-height: 1.05 !important;
+    letter-spacing: 0 !important;
+  }
+
+  body.hem-shop-shell .profile-settings__block h2,
+  body.hem-shop-shell .profile-payment-empty h3,
+  body.hem-shop-shell .profile-order-detail__card-title,
+  body.hem-shop-shell .profile-order-detail__id-number,
+  body.hem-shop-shell .profile-order-detail__card--products h2,
+  body.hem-shop-shell .profile-empty h3,
+  body.hem-shop-shell .coupon-card__code,
+  body.hem-shop-shell .profile-order-detail__cancelled strong,
+  body.hem-shop-shell .profile-order-detail__return strong {
+    font-size: var(--profile-readable-subtitle) !important;
+    line-height: 1.3 !important;
+    letter-spacing: 0 !important;
+  }
+
+  body.hem-shop-shell .profile-sidebar__button {
+    min-height: 4rem !important;
+    padding: 0.875rem 1rem !important;
+  }
+
+  body.hem-shop-shell .profile-summary__identity,
+  body.hem-shop-shell .profile-summary__metric {
+    padding: 2.25rem !important;
+  }
+
+  body.hem-shop-shell .profile-summary__icon {
+    width: 3.75rem !important;
+    height: 3.75rem !important;
+    flex-basis: 3.75rem !important;
+  }
+
+  body.hem-shop-shell .profile-summary__icon svg {
+    width: 1.875rem !important;
+    height: 1.875rem !important;
+  }
+
+  body.hem-shop-shell .profile-form {
+    max-width: 820px !important;
+  }
+
+  body.hem-shop-shell .profile-form input,
+  body.hem-shop-shell .profile-form select,
+  body.hem-shop-shell .change-password-field input {
+    min-height: 3.25rem !important;
+  }
+
+  body.hem-shop-shell .profile-form__back,
+  body.hem-shop-shell .profile-form__submit,
+  body.hem-shop-shell .profile-form__ghost,
+  body.hem-shop-shell .profile-settings__edit,
+  body.hem-shop-shell .profile-address-card__actions button,
+  body.hem-shop-shell .profile-payment-card__remove,
+  body.hem-shop-shell .profile-order__action,
+  body.hem-shop-shell .profile-order__items-toggle,
+  body.hem-shop-shell .profile-orders-pagination button,
+  body.hem-shop-shell .profile-list-pagination button,
+  body.hem-shop-shell .profile-order-line__buy-again,
+  body.hem-shop-shell .profile-order-line__review,
+  body.hem-shop-shell .profile-order-line__reviewed,
+  body.hem-shop-shell .profile-order-line__unavailable,
+  body.hem-shop-shell .profile-order-detail__back,
+  body.hem-shop-shell .profile-order-detail__action,
+  body.hem-shop-shell .profile-review__side button,
+  body.hem-shop-shell .profile-review__actions button,
+  body.hem-shop-shell .change-password-back,
+  body.hem-shop-shell .change-password-submit,
+  body.hem-shop-shell .change-password-cancel,
+  body.hem-shop-shell .profile-confirm-dialog__ghost,
+  body.hem-shop-shell .profile-confirm-dialog__danger {
+    min-height: 2.75rem !important;
+    padding-right: 1.125rem !important;
+    padding-left: 1.125rem !important;
+    font-size: var(--profile-readable-small) !important;
+    line-height: 1.25 !important;
+    letter-spacing: 0 !important;
+  }
+
+  body.hem-shop-shell .profile-order__status-badge {
+    min-height: 1.75rem !important;
+    padding-right: 0.75rem !important;
+    padding-left: 0.75rem !important;
+  }
+
+  body.hem-shop-shell .profile-address-card__badge {
+    min-height: 1.25rem !important;
+    padding-right: 0.5rem !important;
+    padding-left: 0.5rem !important;
+    font-size: 0.625rem !important;
+    line-height: 1 !important;
+  }
+
+  body.hem-shop-shell .profile-order-search {
+    padding-top: 0.875rem !important;
+    padding-bottom: 0.875rem !important;
+  }
+
+  body.hem-shop-shell .profile-order-search svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+  }
+
+  body.hem-shop-shell .profile-order__head,
+  body.hem-shop-shell .profile-order__summary,
+  body.hem-shop-shell .profile-order__actions {
+    padding: 1rem 1.25rem !important;
+  }
+
+  body.hem-shop-shell .profile-order__items {
+    padding-right: 1.25rem !important;
+    padding-left: 1.25rem !important;
+  }
+
+  body.hem-shop-shell .profile-order-line.profile-order-line--summary {
+    grid-template-columns: 7rem minmax(0, 1fr) minmax(9rem, auto) !important;
+    gap: 1.5rem !important;
+    padding-top: 1.25rem !important;
+    padding-bottom: 1.25rem !important;
+  }
+
+  body.hem-shop-shell .profile-order-line.profile-order-line--detail {
+    grid-template-columns: 6.25rem minmax(0, 1fr) !important;
+    column-gap: 1.375rem !important;
+    row-gap: 0.875rem !important;
+    padding: 1.375rem !important;
+  }
+
+  body.hem-shop-shell .profile-order-line__media--summary {
+    width: 7rem !important;
+    height: 8.75rem !important;
+  }
+
+  body.hem-shop-shell .profile-order-line__media {
+    width: 5.75rem !important;
+    height: 7.25rem !important;
+  }
+
+  body.hem-shop-shell .profile-order-line.profile-order-line--detail {
+    grid-template-columns: 6.25rem minmax(0, 1fr) !important;
+    align-items: start !important;
+  }
+
+  body.hem-shop-shell .profile-order-line--detail .profile-order-line__media {
+    width: 6.25rem !important;
+    height: 7.875rem !important;
+  }
+
+  body.hem-shop-shell .profile-order-detail__grid {
+    grid-template-columns: minmax(0, 1fr) 27rem !important;
+    gap: 1.5rem !important;
+  }
+
+  body.hem-shop-shell .profile-order-detail__card {
+    gap: 1.25rem !important;
+    padding: 1.5rem !important;
+  }
+
+  /* Returns use dedicated components, so keep their typography aligned with the profile dashboard. */
+  body.hem-shop-shell .return-history header h1 {
+    font-size: var(--profile-readable-title) !important;
+    line-height: 1.2 !important;
+    letter-spacing: 0 !important;
+  }
+
+  body.hem-shop-shell .return-history__card {
+    gap: 1rem !important;
+    padding: 1.5rem !important;
+  }
+
+  body.hem-shop-shell .return-history__heading,
+  body.hem-shop-shell .return-history__card > p,
+  body.hem-shop-shell .return-history__refund,
+  body.hem-shop-shell .return-history__links,
+  body.hem-shop-shell .return-history__item > strong {
+    font-size: var(--profile-readable-body) !important;
+    line-height: 1.5 !important;
+  }
+
+  body.hem-shop-shell .return-history__product {
+    font-size: var(--profile-readable-subtitle) !important;
+    line-height: 1.35 !important;
+  }
+
+  body.hem-shop-shell .return-history__item-copy > span {
+    font-size: var(--profile-readable-small) !important;
+    line-height: 1.45 !important;
+  }
+
+  body.hem-shop-shell .return-history__status {
+    min-height: 1.75rem !important;
+    padding: 0.375rem 0.75rem !important;
+    font-size: var(--profile-readable-micro) !important;
+    line-height: 1.25 !important;
+  }
+
+  body.hem-shop-shell .return-history__item {
+    grid-template-columns: 5.5rem minmax(0, 1fr) auto !important;
+    gap: 1.25rem !important;
+    padding: 1rem 0 !important;
+  }
+
+  body.hem-shop-shell .return-history__media {
+    width: 5.5rem !important;
+    height: 7rem !important;
+  }
+
+  body.hem-shop-shell .profile-order-detail__aftercare {
+    gap: 1.5rem !important;
+  }
+
+  body.hem-shop-shell .profile-order-detail__aftercare-header h2 {
+    font-size: var(--profile-readable-subtitle) !important;
+    line-height: 1.3 !important;
+  }
+
+  body.hem-shop-shell .profile-order-detail__aftercare-header span,
+  body.hem-shop-shell .profile-order-detail__aftercare-reason strong,
+  body.hem-shop-shell .profile-order-detail__aftercare-item-copy a,
+  body.hem-shop-shell .profile-order-detail__aftercare-quantity,
+  body.hem-shop-shell .profile-order-detail__aftercare-refund div > strong,
+  body.hem-shop-shell .refund-account-form__heading h3,
+  body.hem-shop-shell .refund-account-form__summary strong,
+  body.hem-shop-shell .refund-account-form__summary span,
+  body.hem-shop-shell .refund-account-form > p {
+    font-size: var(--profile-readable-body) !important;
+    line-height: 1.5 !important;
+  }
+
+  body.hem-shop-shell .profile-order-detail__aftercare-item-copy span,
+  body.hem-shop-shell .profile-order-detail__aftercare-refund div > span:last-child {
+    font-size: var(--profile-readable-small) !important;
+    line-height: 1.45 !important;
+  }
+
+  body.hem-shop-shell .profile-order-detail__aftercare-reason span,
+  body.hem-shop-shell .profile-order-detail__aftercare-label,
+  body.hem-shop-shell .refund-account-form__heading > span {
+    font-size: var(--profile-readable-micro) !important;
+    line-height: 1.3 !important;
+  }
+
+  body.hem-shop-shell .profile-order-detail__aftercare-item {
+    grid-template-columns: 5.5rem minmax(0, 1fr) auto !important;
+    gap: 1.25rem !important;
+    padding: 1rem 0 !important;
+  }
+
+  body.hem-shop-shell .profile-order-detail__aftercare-media {
+    width: 5.5rem !important;
+    height: 7rem !important;
+  }
+
+  body.hem-shop-shell .profile-order-detail__aftercare-amount {
+    font-size: 1.375rem !important;
+    line-height: 1.2 !important;
+  }
+
+  body.hem-shop-shell .refund-account-form {
+    gap: 1rem !important;
+    margin-top: 1rem !important;
+    padding-top: 1.25rem !important;
+  }
+
+  body.hem-shop-shell .profile-order-detail__facts div,
+  body.hem-shop-shell .profile-order-shipping-card div {
+    padding: 0.875rem 1rem !important;
+  }
+
+  body.hem-shop-shell .profile-order-timeline__item {
+    grid-template-columns: 1.5rem minmax(0, 1fr) !important;
+    gap: 1rem !important;
+    padding-bottom: 1.5rem !important;
+  }
+
+  body.hem-shop-shell .profile-order-timeline__item > span {
+    width: 1rem !important;
+    height: 1rem !important;
+  }
+
+  body.hem-shop-shell .profile-review__main {
+    grid-template-columns: 6.25rem minmax(0, 1fr) !important;
+    gap: 1.25rem !important;
+    padding: 1.5rem !important;
+  }
+
+  body.hem-shop-shell .profile-review__media {
+    width: 6.25rem !important;
+    height: 7.75rem !important;
+  }
+
+  body.hem-shop-shell .profile-review .profile-review__stars span {
+    font-size: 1.125rem !important;
+  }
+
+  body.hem-shop-shell .profile-review blockquote {
+    padding: 0.875rem 1rem !important;
+  }
+
+  body.hem-shop-shell .profile-payment-card {
+    max-width: 390px !important;
+    height: 210px !important;
+    padding: 1.5rem !important;
+  }
+
+  body.hem-shop-shell .profile-payment-card__number {
+    font-size: 1.25rem !important;
+  }
+
+  body.hem-shop-shell .profile-payment-card__holder span,
+  body.hem-shop-shell .profile-payment-card__brand {
+    font-size: var(--profile-readable-small) !important;
+    letter-spacing: 0 !important;
+  }
+
+  body.hem-shop-shell .profile-payment-card__holder strong {
+    font-size: var(--profile-readable-body) !important;
+    letter-spacing: 0 !important;
+  }
+
+  body.hem-shop-shell .coupon-card__body {
+    padding: 1.25rem 1.25rem 1.25rem 1.75rem !important;
+  }
+
+  body.hem-shop-shell .profile-confirm-dialog {
+    width: min(100%, 33.75rem) !important;
+    gap: 1rem !important;
+    padding: 2.25rem !important;
+  }
+
+  body.hem-shop-shell .profile-confirm-dialog h2 {
+    font-size: 1.5rem !important;
+  }
+
+  body.hem-shop-shell .profile-confirm-dialog > p:not(.eyebrow),
+  body.hem-shop-shell .profile-confirm-dialog__field textarea,
+  body.hem-shop-shell .profile-confirm-dialog__field select,
+  body.hem-shop-shell .profile-order-review textarea {
+    font-size: 1rem !important;
+  }
+}
+
+@media (min-width: 1920px) {
+  body.hem-shop-shell {
+    --profile-readable-title: 2rem;
+    --profile-readable-subtitle: 1.25rem;
+    --profile-readable-body: 1.0625rem;
+    --profile-readable-small: 1rem;
+    --profile-readable-micro: 0.9375rem;
+  }
+
+  body.hem-shop-shell .profile-view {
+    max-width: 1840px !important;
+    padding-right: 4.5rem !important;
+    padding-left: 4.5rem !important;
+  }
+
+  body.hem-shop-shell .profile-layout {
+    grid-template-columns: minmax(23rem, 26rem) minmax(0, 1fr) !important;
+    gap: 5.5rem !important;
+  }
+
+  body.hem-shop-shell .profile-summary__identity h1,
+  body.hem-shop-shell .profile-summary__metric strong {
+    font-size: 2.625rem !important;
+  }
+
+  body.hem-shop-shell .profile-order-detail__grid {
+    grid-template-columns: minmax(0, 1fr) 29rem !important;
+  }
+
+  body.hem-shop-shell .profile-confirm-dialog {
+    width: min(100%, 38.75rem) !important;
+    padding: 2.625rem !important;
+  }
+
+  body.hem-shop-shell .profile-confirm-dialog h2 {
+    font-size: 1.75rem !important;
+  }
+
+  body.hem-shop-shell .profile-confirm-dialog > p:not(.eyebrow),
+  body.hem-shop-shell .profile-confirm-dialog__field textarea,
+  body.hem-shop-shell .profile-confirm-dialog__field select,
+  body.hem-shop-shell .profile-order-review textarea {
+    font-size: 1.125rem !important;
+  }
+
+  body.hem-shop-shell .profile-confirm-dialog__ghost,
+  body.hem-shop-shell .profile-confirm-dialog__danger {
+    min-height: 3.25rem !important;
+    font-size: 1rem !important;
+  }
+}
+
+/* Catalog controls need presentation-sized type on classroom displays. */
+@media (min-width: 1440px) {
+  body.hem-shop-shell .shop-view:not(.shop-view--landing) > .page-breadcrumbs,
+  body.hem-shop-shell .search-page > .page-breadcrumbs {
+    width: 100vw !important;
+    margin-left: calc(50% - 50vw) !important;
+    padding-right: var(--sp-7) !important;
+    padding-left: var(--sp-7) !important;
+    box-sizing: border-box !important;
+  }
+
+  body.hem-shop-shell .page-breadcrumbs {
+    padding-top: 0.625rem !important;
+    padding-bottom: 0.625rem !important;
+  }
+
+  body.hem-shop-shell .page-breadcrumbs__item {
+    min-height: 1.75rem !important;
+  }
+
+  body.hem-shop-shell .page-breadcrumbs__link,
+  body.hem-shop-shell .page-breadcrumbs__current,
+  body.hem-shop-shell .page-breadcrumbs__separator {
+    font-size: clamp(0.9375rem, 0.84rem + 0.12vw, 1.0625rem) !important;
+    line-height: 1.25 !important;
+  }
+
+  body.hem-shop-shell .profile-view .page-breadcrumbs__link,
+  body.hem-shop-shell .profile-view .page-breadcrumbs__current,
+  body.hem-shop-shell .profile-view .page-breadcrumbs__separator {
+    font-size: clamp(0.9375rem, 0.84rem + 0.12vw, 1.0625rem) !important;
+    line-height: 1.25 !important;
+  }
+
+  body.hem-shop-shell .search-page > .page-breadcrumbs .page-breadcrumbs__link,
+  body.hem-shop-shell .search-page > .page-breadcrumbs .page-breadcrumbs__current,
+  body.hem-shop-shell .search-page > .page-breadcrumbs .page-breadcrumbs__separator {
+    font-size: clamp(1rem, 0.91rem + 0.12vw, 1.125rem) !important;
+  }
+
+  body.hem-shop-shell .search-header {
+    width: 100vw !important;
+    margin-left: calc(50% - 50vw) !important;
+    padding: 2.25rem var(--sp-7) 1rem !important;
+  }
+
+  body.hem-shop-shell .search-header h1 {
+    font-size: clamp(3.5rem, 3rem + 0.75vw, 4.25rem) !important;
+    line-height: 1 !important;
+  }
+
+  body.hem-shop-shell .search-header__count {
+    font-size: clamp(0.9375rem, 0.85rem + 0.1vw, 1.0625rem) !important;
+    line-height: 1.35 !important;
+  }
+
+  body.hem-shop-shell .catalog-header {
+    padding-top: 2.25rem !important;
+    padding-bottom: 1.25rem !important;
+  }
+
+  body.hem-shop-shell .catalog-header h1 {
+    font-size: clamp(3rem, 2.45rem + 0.7vw, 3.75rem) !important;
+    line-height: 1.05 !important;
+  }
+
+  body.hem-shop-shell .catalog-tabs__list,
+  body.hem-shop-shell .collection-scope-tabs__list {
+    gap: 0.5rem !important;
+  }
+
+  body.hem-shop-shell .catalog-tabs__button,
+  body.hem-shop-shell .collection-scope-tabs__button {
+    min-height: 3.75rem !important;
+    padding-right: 1.25rem !important;
+    padding-left: 1.25rem !important;
+    color: rgba(17, 17, 17, 0.58) !important;
+    font-size: clamp(1rem, 0.9rem + 0.12vw, 1.125rem) !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.055em !important;
+  }
+
+  body.hem-shop-shell .catalog-tabs__button:hover,
+  body.hem-shop-shell .catalog-tabs__button--active,
+  body.hem-shop-shell .collection-scope-tabs__button:hover,
+  body.hem-shop-shell .collection-scope-tabs__button--active {
+    color: #111111 !important;
+  }
+
+  body.hem-shop-shell .catalog-tabs__button--active,
+  body.hem-shop-shell .collection-scope-tabs__button--active {
+    font-weight: 800 !important;
+  }
+
+  body.hem-shop-shell .catalog-meta {
+    min-height: 4.75rem !important;
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+    font-size: clamp(1rem, 0.9rem + 0.12vw, 1.125rem) !important;
+  }
+
+  body.hem-shop-shell .catalog-meta__controls {
+    gap: 2.25rem !important;
+  }
+
+  body.hem-shop-shell .catalog-meta__count {
+    gap: 0.625rem !important;
+    font-size: clamp(1rem, 0.9rem + 0.12vw, 1.125rem) !important;
+  }
+
+  body.hem-shop-shell .catalog-meta__count strong {
+    font-size: clamp(1.0625rem, 0.94rem + 0.14vw, 1.25rem) !important;
+  }
+
+  body.hem-shop-shell .catalog-sort summary,
+  body.hem-shop-shell .catalog-filter-toggle {
+    min-height: 3.25rem !important;
+    font-size: clamp(1rem, 0.9rem + 0.12vw, 1.125rem) !important;
+    font-weight: 700 !important;
+  }
+
+  body.hem-shop-shell .catalog-sort summary svg,
+  body.hem-shop-shell .catalog-filter-toggle svg {
+    width: 1.375rem !important;
+    height: 1.375rem !important;
+  }
+
+  body.hem-shop-shell .catalog-filter-toggle {
+    padding-right: 1.375rem !important;
+    padding-left: 1.375rem !important;
+  }
+
+  body.hem-shop-shell .catalog-sort__menu {
+    width: 18rem !important;
+    gap: 0.375rem !important;
+    padding: 1rem !important;
+  }
+
+  body.hem-shop-shell .catalog-sort__menu button {
+    min-height: 3rem !important;
+    gap: 0.75rem !important;
+    padding-right: 0.75rem !important;
+    padding-left: 0.75rem !important;
+    font-size: clamp(0.9375rem, 0.84rem + 0.12vw, 1.0625rem) !important;
+  }
+
+  body.hem-shop-shell .catalog-sort__menu button > span {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    flex-basis: 1.25rem !important;
+  }
+
+  body.hem-shop-shell .catalog-meta__chip {
+    min-height: 2.75rem !important;
+    font-size: clamp(0.9375rem, 0.84rem + 0.12vw, 1.0625rem) !important;
+  }
+
+  body.hem-shop-shell .catalog-filter-drawer {
+    width: min(35rem, 100vw) !important;
+  }
+
+  body.hem-shop-shell .catalog-filter-drawer__header {
+    min-height: 5.25rem !important;
+    grid-template-columns: 3.25rem minmax(0, 1fr) 3.25rem !important;
+    padding-right: 1.625rem !important;
+    padding-left: 1.625rem !important;
+  }
+
+  body.hem-shop-shell .catalog-filter-drawer__header h2 {
+    font-size: clamp(1.125rem, 1rem + 0.14vw, 1.25rem) !important;
+    font-weight: 600 !important;
+  }
+
+  body.hem-shop-shell .catalog-filter-drawer__header button {
+    width: 3rem !important;
+    height: 3rem !important;
+  }
+
+  body.hem-shop-shell .catalog-filter-drawer__header svg {
+    width: 1.125rem !important;
+    height: 1.125rem !important;
+  }
+
+  body.hem-shop-shell .catalog-filter-drawer .catalog-filters {
+    padding-right: 1.875rem !important;
+    padding-bottom: 2rem !important;
+    padding-left: 1.875rem !important;
+  }
+
+  body.hem-shop-shell .catalog-filter-drawer .filter-section {
+    min-height: 4.25rem !important;
+    padding-top: 1.25rem !important;
+    padding-bottom: 1.25rem !important;
+  }
+
+  body.hem-shop-shell .catalog-filter-drawer .filter-section__title {
+    font-size: clamp(1rem, 0.9rem + 0.12vw, 1.125rem) !important;
+    font-weight: 700 !important;
+  }
+
+  body.hem-shop-shell .catalog-filter-drawer .filter-section__copy small {
+    font-size: clamp(0.875rem, 0.8rem + 0.1vw, 1rem) !important;
+  }
+
+  body.hem-shop-shell .catalog-filter-drawer .filter-section__arrow {
+    width: 0.75rem !important;
+    height: 0.75rem !important;
+  }
+
+  body.hem-shop-shell .catalog-filter-drawer .filter-panel__back {
+    min-height: 3.75rem !important;
+    gap: 0.875rem !important;
+    font-size: clamp(1rem, 0.9rem + 0.12vw, 1.125rem) !important;
+  }
+
+  body.hem-shop-shell .catalog-filter-drawer .filter-panel__back svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+  }
+
+  body.hem-shop-shell .catalog-filter-drawer .filter-panel__options {
+    padding-top: 1.25rem !important;
+  }
+
+  body.hem-shop-shell .catalog-filter-drawer .filter-check {
+    min-height: 2.75rem !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+    font-size: clamp(0.9375rem, 0.84rem + 0.12vw, 1.0625rem) !important;
+  }
+
+  body.hem-shop-shell .catalog-filter-drawer .filter-check__count,
+  body.hem-shop-shell .catalog-filter-drawer .filter-colors small {
+    font-size: clamp(0.875rem, 0.8rem + 0.1vw, 1rem) !important;
+  }
+
+  body.hem-shop-shell .catalog-filter-drawer .filter-check__box,
+  body.hem-shop-shell .catalog-filter-drawer .filter-check__radio,
+  body.hem-shop-shell .catalog-filter-drawer .filter-check__swatch {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    flex-basis: 1.25rem !important;
+  }
+
+  body.hem-shop-shell .catalog-filter-drawer .filter-price__quick {
+    gap: 0.625rem !important;
+  }
+
+  body.hem-shop-shell .catalog-filter-drawer .filter-price__quick button,
+  body.hem-shop-shell .catalog-filter-drawer .filter-sizes button {
+    min-height: 3.125rem !important;
+    padding-right: 1rem !important;
+    padding-left: 1rem !important;
+    font-size: clamp(0.9375rem, 0.84rem + 0.12vw, 1.0625rem) !important;
+  }
+
+  body.hem-shop-shell .catalog-filter-drawer__footer {
+    gap: 1rem !important;
+    padding: 1.375rem 1.625rem !important;
+  }
+
+  body.hem-shop-shell .catalog-filter-drawer__footer button {
+    min-height: 3.75rem !important;
+    font-size: clamp(1rem, 0.9rem + 0.12vw, 1.125rem) !important;
+    font-weight: 700 !important;
+  }
+}
+
+/* Final storefront presentation pass for TV and projector demos. */
+@media (min-width: 1440px) {
+  body.hem-shop-shell {
+    --demo-readable-body: clamp(1.0625rem, 0.94rem + 0.14vw, 1.25rem);
+    --demo-readable-small: clamp(1rem, 0.9rem + 0.12vw, 1.125rem);
+    --demo-readable-micro: clamp(0.9375rem, 0.84rem + 0.12vw, 1.0625rem);
+  }
+
+  /* Account dropdown */
+  body.hem-shop-shell .account-menu__dropdown {
+    width: min(22rem, calc(100vw - 2rem)) !important;
+    padding: 2rem 2.25rem !important;
+    border-radius: 0.75rem !important;
+  }
+
+  body.hem-shop-shell .account-menu__title {
+    margin-bottom: 0.875rem !important;
+    padding-bottom: 0.875rem !important;
+    font-size: clamp(1.25rem, 1.08rem + 0.18vw, 1.5rem) !important;
+    line-height: 1.2 !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  body.hem-shop-shell .account-menu__link {
+    min-height: 3.125rem !important;
+    padding: 0.625rem 0 !important;
+    font-size: var(--demo-readable-body) !important;
+    line-height: 1.4 !important;
+  }
+
+  /* Shared product cards: catalog, search, landing, mega menu, and related rails. */
+  body.hem-shop-shell .product-card__float {
+    top: 0.625rem !important;
+    right: 0.625rem !important;
+  }
+
+  body.hem-shop-shell .product-card__save {
+    width: 3.25rem !important;
+    height: 3.25rem !important;
+    color: rgba(17, 17, 17, 0.72) !important;
+  }
+
+  body.hem-shop-shell .product-card__save svg {
+    width: 1.625rem !important;
+    height: 1.625rem !important;
+    stroke-width: 2 !important;
+    filter: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.9)) !important;
+  }
+
+  body.hem-shop-shell .product-card__save:hover,
+  body.hem-shop-shell .product-card__save--active {
+    color: #d92d20 !important;
+  }
+
+  body.hem-shop-shell .product-info__favorite {
+    width: 3.25rem !important;
+    height: 3.25rem !important;
+  }
+
+  body.hem-shop-shell .product-info__favorite svg {
+    width: 2rem !important;
+    height: 2rem !important;
+    stroke-width: 1.9 !important;
+  }
+
+  /* Size guide drawer */
+  body.hem-shop-shell .size-guide-panel {
+    width: min(38rem, 100%) !important;
+    font-size: var(--demo-readable-body) !important;
+  }
+
+  body.hem-shop-shell .size-guide-panel__header {
+    padding: 1.625rem 2rem !important;
+  }
+
+  body.hem-shop-shell .size-guide-panel__title {
+    font-size: clamp(1.125rem, 1rem + 0.12vw, 1.25rem) !important;
+    line-height: 1.35 !important;
+  }
+
+  body.hem-shop-shell .size-guide-panel__close {
+    width: 2.75rem !important;
+    height: 2.75rem !important;
+  }
+
+  body.hem-shop-shell .size-guide-panel__close svg {
+    width: 1.375rem !important;
+    height: 1.375rem !important;
+  }
+
+  body.hem-shop-shell .size-guide-panel__body {
+    gap: 1.5rem !important;
+    padding: 2rem 2rem 3rem !important;
+  }
+
+  body.hem-shop-shell .size-guide-panel__note {
+    font-size: var(--demo-readable-small) !important;
+    line-height: 1.5 !important;
+  }
+
+  body.hem-shop-shell .size-guide-table th {
+    padding: 0.875rem 0.625rem !important;
+    font-size: var(--demo-readable-micro) !important;
+    line-height: 1.3 !important;
+  }
+
+  body.hem-shop-shell .size-guide-table td {
+    padding: 1rem 0.625rem !important;
+    font-size: var(--demo-readable-small) !important;
+    line-height: 1.4 !important;
+  }
+
+  /* Footer */
+  body.hem-shop-shell .site-footer {
+    padding-right: clamp(2rem, 3vw, 4rem) !important;
+    padding-left: clamp(2rem, 3vw, 4rem) !important;
+  }
+
+  body.hem-shop-shell .site-footer__accent-bar,
+  body.hem-shop-shell .site-footer__container,
+  body.hem-shop-shell .site-footer__bottom {
+    width: 100% !important;
+    max-width: none !important;
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+  }
+
+  body.hem-shop-shell .site-footer__container {
+    grid-template-columns: minmax(16rem, 1.55fr) minmax(8rem, 0.75fr) minmax(11rem, 0.95fr) minmax(16rem, 1.2fr) !important;
+    gap: clamp(2rem, 2.7vw, 3.25rem) !important;
+  }
+
+  body.hem-shop-shell .site-footer__payment-list {
+    width: min(100%, 24rem) !important;
+  }
+
+  body.hem-shop-shell .site-footer__description,
+  body.hem-shop-shell .site-footer__social-link,
+  body.hem-shop-shell .site-footer__contact-link,
+  body.hem-shop-shell .site-footer__link,
+  body.hem-shop-shell .site-footer__payment-note,
+  body.hem-shop-shell .site-footer__newsletter-text,
+  body.hem-shop-shell .site-footer__newsletter-input {
+    font-size: var(--demo-readable-small) !important;
+    line-height: 1.65 !important;
+  }
+
+  body.hem-shop-shell .site-footer__col-title,
+  body.hem-shop-shell .site-footer__payment-card,
+  body.hem-shop-shell .site-footer__copy,
+  body.hem-shop-shell .site-footer__bottom-links {
+    font-size: var(--demo-readable-micro) !important;
+    line-height: 1.4 !important;
+  }
+
+  body.hem-shop-shell .site-footer__payment-card {
+    min-height: 2.25rem !important;
+    padding: 0.5rem 0.75rem !important;
+    white-space: nowrap !important;
+  }
+
+  body.hem-shop-shell .site-footer__newsletter-input {
+    min-height: 3rem !important;
+  }
+
+  body.hem-shop-shell .site-footer__newsletter-btn {
+    height: 3rem !important;
+    min-width: 3rem !important;
+  }
+
+  /* Landing page and all product cards */
+  body.hem-shop-shell .hot-collection-card__button,
+  body.hem-shop-shell .landing-category-card__label,
+  body.hem-shop-shell .landing-copy .eyebrow,
+  body.hem-shop-shell .coupon-card__code-label,
+  body.hem-shop-shell .coupon-card__copy {
+    font-size: var(--demo-readable-small) !important;
+  }
+
+  body.hem-shop-shell .landing-copy p {
+    font-size: var(--demo-readable-body) !important;
+    line-height: 1.75 !important;
+  }
+
+  body.hem-shop-shell .hot-collection-card__button {
+    min-height: 2.75rem !important;
+    padding-right: 1.125rem !important;
+    padding-left: 1.125rem !important;
+  }
+
+  body.hem-shop-shell .product-card__badge,
+  body.hem-shop-shell .product-card__meta-line,
+  body.hem-shop-shell .product-card__rating,
+  body.hem-shop-shell .product-card__price-label,
+  body.hem-shop-shell .product-card__discount {
+    font-size: var(--demo-readable-small) !important;
+    line-height: 1.3 !important;
+  }
+
+  body.hem-shop-shell .product-card__title {
+    font-size: var(--demo-readable-body) !important;
+    line-height: 1.38 !important;
+  }
+
+  body.hem-shop-shell .product-card__price-amount,
+  body.hem-shop-shell .product-card__price-row {
+    font-size: var(--demo-readable-body) !important;
+  }
+
+  body.hem-shop-shell .product-card__price-original,
+  body.hem-shop-shell .product-card__price-prefix {
+    font-size: var(--demo-readable-small) !important;
+  }
+
+  /* Sale banner */
+  body.hem-shop-shell .store-sale-strip {
+    min-height: 40px !important;
+    gap: 12px !important;
+    font-size: clamp(15px, 0.83vw, 16px) !important;
+    font-weight: 700 !important;
+  }
+
+  body.hem-shop-shell .store-sale-strip__timer {
+    padding: 5px 10px !important;
+    font-size: clamp(14px, 0.78vw, 15px) !important;
+  }
+
+  body.hem-shop-shell .store-sale-strip__close {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  /* Search drawer and mega menu */
+  body.hem-shop-shell .search-drawer__label,
+  body.hem-shop-shell .search-drawer__clear,
+  body.hem-shop-shell .search-drawer__suggestion-meta,
+  body.hem-shop-shell .search-drawer__history-date,
+  body.hem-shop-shell .search-drawer__state {
+    font-size: var(--demo-readable-small) !important;
+  }
+
+  body.hem-shop-shell .search-drawer .search-drawer__form input[type='search'],
+  body.hem-shop-shell .search-drawer .search-drawer__form input[type='search']::placeholder,
+  body.hem-shop-shell .search-drawer__suggestion-label,
+  body.hem-shop-shell .search-drawer__history-keyword,
+  body.hem-shop-shell .search-drawer__history-remove {
+    font-size: var(--demo-readable-body) !important;
+  }
+
+  body.hem-shop-shell .mega-menu__drill-item,
+  body.hem-shop-shell .mega-menu a.mega-menu__drill-item {
+    font-size: calc(var(--demo-readable-small) + 5px) !important;
+    line-height: 1.3 !important;
+  }
+
+  body.hem-shop-shell .mega-menu__collection-title,
+  body.hem-shop-shell .mega-menu__link span,
+  body.hem-shop-shell .mega-menu__link small,
+  body.hem-shop-shell .mega-menu__empty {
+    font-size: var(--demo-readable-small) !important;
+    line-height: 1.4 !important;
+  }
+
+  /* Authentication */
+  body.hem-shop-shell .auth-modal {
+    width: min(100%, 42rem) !important;
+    gap: 1.5rem !important;
+    padding: 2rem !important;
+  }
+
+  body.hem-shop-shell .auth-modal.logout-confirm {
+    width: min(100%, 33.75rem) !important;
+    gap: 1rem !important;
+    padding: 2.25rem !important;
+  }
+
+  body.hem-shop-shell .logout-confirm .auth-modal__close {
+    min-height: 3rem !important;
+  }
+
+  body.hem-shop-shell .auth-modal--register {
+    width: min(100%, 44rem) !important;
+    gap: 0.875rem !important;
+  }
+
+  body.hem-shop-shell .auth-modal__close,
+  body.hem-shop-shell .auth-form__text-action,
+  body.hem-shop-shell .auth-field-error,
+  body.hem-shop-shell .auth-password-rules,
+  body.hem-shop-shell .auth-password-strength span,
+  body.hem-shop-shell .auth-account-preview span {
+    font-size: var(--demo-readable-micro) !important;
+  }
+
+  body.hem-shop-shell .auth-modal__close {
+    min-height: 2.75rem !important;
+    padding-right: 1.125rem !important;
+    padding-left: 1.125rem !important;
+  }
+
+  body.hem-shop-shell .auth-modal__intro .eyebrow,
+  body.hem-shop-shell .auth-modal__intro p,
+  body.hem-shop-shell .auth-label,
+  body.hem-shop-shell .auth-form span,
+  body.hem-shop-shell .auth-form input,
+  body.hem-shop-shell .auth-form button,
+  body.hem-shop-shell .auth-account-preview strong {
+    font-size: var(--demo-readable-small) !important;
+  }
+
+  body.hem-shop-shell .auth-form input,
+  body.hem-shop-shell .auth-form__submit,
+  body.hem-shop-shell .auth-panel__tabs button {
+    min-height: 3.25rem !important;
+  }
+
+  /* Product detail, variants, reviews, and related products */
+  body.hem-shop-shell .product-price__label,
+  body.hem-shop-shell .product-price__discount,
+  body.hem-shop-shell .product-badges__item,
+  body.hem-shop-shell .selector-label,
+  body.hem-shop-shell .size-guide-trigger,
+  body.hem-shop-shell .stock-state,
+  body.hem-shop-shell .quantity-stepper__hint,
+  body.hem-shop-shell .review-summary__link,
+  body.hem-shop-shell .accordion__tag,
+  body.hem-shop-shell .accordion__meta dt {
+    font-size: var(--demo-readable-small) !important;
+  }
+
+  body.hem-shop-shell .product-price__discount,
+  body.hem-shop-shell .product-badges__item {
+    min-height: 2rem !important;
+    padding-right: 0.75rem !important;
+    padding-left: 0.75rem !important;
+  }
+
+  body.hem-shop-shell .selector-selected,
+  body.hem-shop-shell .size-grid button,
+  body.hem-shop-shell .quantity-stepper__value,
+  body.hem-shop-shell .product-detail__add-btn,
+  body.hem-shop-shell .accordion__text,
+  body.hem-shop-shell .accordion__list,
+  body.hem-shop-shell .accordion__meta dd {
+    font-size: var(--demo-readable-body) !important;
+  }
+
+  body.hem-shop-shell .product-reviews__count,
+  body.hem-shop-shell .product-reviews__distribution-row,
+  body.hem-shop-shell .product-reviews__loading,
+  body.hem-shop-shell .product-reviews__notice,
+  body.hem-shop-shell .product-reviews__empty,
+  body.hem-shop-shell .product-review-form__heading,
+  body.hem-shop-shell .product-review-form__label-text,
+  body.hem-shop-shell .product-review-form__rating-label,
+  body.hem-shop-shell .product-review-form__label span,
+  body.hem-shop-shell .product-review-card__own-label,
+  body.hem-shop-shell .product-review-card__meta span,
+  body.hem-shop-shell .product-review-card__purchase,
+  body.hem-shop-shell .product-review-card__date,
+  body.hem-shop-shell .product-review-card__reply-title {
+    font-size: var(--demo-readable-small) !important;
+    line-height: 1.4 !important;
+  }
+
+  body.hem-shop-shell .product-review-form textarea,
+  body.hem-shop-shell .product-review-card__author,
+  body.hem-shop-shell .product-review-card__body,
+  body.hem-shop-shell .product-review-card__text,
+  body.hem-shop-shell .product-review-card__reply-text {
+    font-size: var(--demo-readable-body) !important;
+  }
+
+  body.hem-shop-shell .product-review-card__author {
+    font-size: clamp(1.1875rem, 1.08rem + 0.12vw, 1.3125rem) !important;
+    font-weight: 700 !important;
+  }
+
+  body.hem-shop-shell .product-review-card__verified {
+    font-size: var(--demo-readable-micro) !important;
+    line-height: 1.25 !important;
+  }
+
+  body.hem-shop-shell .product-reviews__distribution-row {
+    grid-template-columns: 3.25rem minmax(0, 1fr) 3.5rem 2.25rem !important;
+    column-gap: 0.875rem !important;
+  }
+
+  body.hem-shop-shell .product-reviews__distribution-label,
+  body.hem-shop-shell .product-reviews__distribution-percentage,
+  body.hem-shop-shell .product-reviews__distribution-count {
+    white-space: nowrap !important;
+  }
+}
+
+@media (min-width: 1440px) {
+  /* Cart and shared order summary */
+  body.hem-shop-shell .cart-selection-bar,
+  body.hem-shop-shell .cart-selection-bar__delete,
+  body.hem-shop-shell .cart-check span,
+  body.hem-shop-shell .cart-line__brand,
+  body.hem-shop-shell .cart-line__meta-row,
+  body.hem-shop-shell .cart-line__stock-limit,
+  body.hem-shop-shell .cart-clear,
+  body.hem-shop-shell .cart-summary__badge,
+  body.hem-shop-shell .cart-summary__checkout-message,
+  body.hem-shop-shell .cart-summary__clear-btn,
+  body.hem-shop-shell .cart-summary__item-brand,
+  body.hem-shop-shell .cart-summary__details dt,
+  body.hem-shop-shell .cart-summary__details dd,
+  body.hem-shop-shell .cart-summary__item-variant,
+  body.hem-shop-shell .cart-summary__show-more-btn,
+  body.hem-shop-shell .cart-summary__value--free,
+  body.hem-shop-shell .cart-summary__shipping-progress-label,
+  body.hem-shop-shell .cart-summary__shipping-progress-amount,
+  body.hem-shop-shell .cart-summary__trust-item {
+    font-size: var(--demo-readable-micro) !important;
+    line-height: 1.4 !important;
+  }
+
+  body.hem-shop-shell .cart-price-label,
+  body.hem-shop-shell .checkout-price-label {
+    font-size: var(--demo-readable-micro) !important;
+    letter-spacing: 0.06em !important;
+  }
+
+  body.hem-shop-shell .cart-summary__item-name,
+  body.hem-shop-shell .cart-summary__item-unit,
+  body.hem-shop-shell .cart-summary__item-price,
+  body.hem-shop-shell .cart-summary__label,
+  body.hem-shop-shell .cart-summary__value,
+  body.hem-shop-shell .cart-summary__stepper-count,
+  body.hem-shop-shell .cart-line__name,
+  body.hem-shop-shell .cart-line__step-count {
+    font-size: var(--demo-readable-body) !important;
+  }
+
+  body.hem-shop-shell .cart-price-line {
+    --cart-current-price-size: var(--demo-readable-body);
+  }
+
+  body.hem-shop-shell .cart-price-line strong {
+    font-size: var(--cart-current-price-size) !important;
+  }
+
+  body.hem-shop-shell .cart-price-compare {
+    font-size: calc(var(--cart-current-price-size) - 2px) !important;
+  }
+
+  body.hem-shop-shell .cart-add-notice__price {
+    --cart-notice-current-price-size: var(--demo-readable-small);
+  }
+
+  body.hem-shop-shell .cart-add-notice {
+    grid-template-columns: 6rem minmax(0, 1fr) !important;
+    gap: 1.125rem !important;
+    width: min(32rem, calc(100vw - 2rem)) !important;
+    padding: 1.125rem !important;
+  }
+
+  body.hem-shop-shell .cart-add-notice__content {
+    gap: 0.375rem !important;
+  }
+
+  body.hem-shop-shell .cart-add-notice__eyebrow {
+    font-size: var(--demo-readable-micro) !important;
+  }
+
+  body.hem-shop-shell .cart-add-notice__name {
+    font-size: var(--demo-readable-body) !important;
+    line-height: 1.3 !important;
+  }
+
+  body.hem-shop-shell .cart-add-notice__variant,
+  body.hem-shop-shell .favorite-add-notice .cart-add-notice__variant {
+    font-size: var(--demo-readable-small) !important;
+    line-height: 1.4 !important;
+  }
+
+  body.hem-shop-shell .cart-add-notice__price strong {
+    font-size: var(--cart-notice-current-price-size) !important;
+  }
+
+  body.hem-shop-shell .cart-add-notice__price-label {
+    font-size: var(--demo-readable-micro) !important;
+    line-height: 1.3 !important;
+  }
+
+  body.hem-shop-shell .cart-add-notice__price > span:not(.cart-add-notice__price-compare) {
+    font-size: var(--demo-readable-small) !important;
+    line-height: 1.4 !important;
+  }
+
+  body.hem-shop-shell .cart-add-notice__price-compare {
+    font-size: calc(var(--cart-notice-current-price-size) - 2px) !important;
+  }
+
+  body.hem-shop-shell .cart-line__stepper,
+  body.hem-shop-shell .cart-line__step-btn,
+  body.hem-shop-shell .cart-line__step-count {
+    height: 2.75rem !important;
+  }
+
+  body.hem-shop-shell .cart-line__step-btn {
+    width: 2.75rem !important;
+  }
+
+  body.hem-shop-shell .cart-summary__stepper,
+  body.hem-shop-shell .cart-summary__stepper-btn,
+  body.hem-shop-shell .cart-summary__stepper-count {
+    height: 2.5rem !important;
+  }
+
+  body.hem-shop-shell .cart-summary__stepper-btn {
+    width: 2.5rem !important;
+  }
+
+  body.hem-shop-shell .cart-summary__stepper-count {
+    line-height: 2.5rem !important;
+  }
+
+  body.hem-shop-shell .cart-summary__trust {
+    gap: 1rem !important;
+    padding-top: 1rem !important;
+  }
+
+  body.hem-shop-shell .cart-summary__trust-item svg {
+    width: 1.375rem !important;
+    height: 1.375rem !important;
+  }
+
+  /* Checkout address, coupon, payment, and order summary */
+  body.hem-shop-shell .checkout-form__section > .eyebrow,
+  body.hem-shop-shell .checkout-field-error,
+  body.hem-shop-shell .checkout-coupon__available-label,
+  body.hem-shop-shell .checkout-coupon__card-unavailable,
+  body.hem-shop-shell .checkout-coupon__meta-label,
+  body.hem-shop-shell .checkout-coupon__error,
+  body.hem-shop-shell .checkout-coupon__empty,
+  body.hem-shop-shell .checkout-coupon__toggle-copy span,
+  body.hem-shop-shell .checkout-coupon__card-state span,
+  body.hem-shop-shell .checkout-coupon__card-state strong,
+  body.hem-shop-shell .checkout-sidebar__note,
+  body.hem-shop-shell .checkout-card-form__top span,
+  body.hem-shop-shell .checkout-card-form__top b {
+    font-size: var(--demo-readable-micro) !important;
+    line-height: 1.4 !important;
+  }
+
+  body.hem-shop-shell .checkout-form__section label > span,
+  body.hem-shop-shell .checkout-coupon button,
+  body.hem-shop-shell .checkout-coupon__applied span,
+  body.hem-shop-shell .checkout-coupon__available > span,
+  body.hem-shop-shell .checkout-coupon__card-desc,
+  body.hem-shop-shell .checkout-coupon__meta-value,
+  body.hem-shop-shell .checkout-coupon__card-use,
+  body.hem-shop-shell .checkout-coupon__toggle-copy strong,
+  body.hem-shop-shell .checkout-payment__label {
+    font-size: var(--demo-readable-small) !important;
+    line-height: 1.4 !important;
+  }
+
+  body.hem-shop-shell .checkout-form__section input:not([type='radio']):not([type='checkbox']),
+  body.hem-shop-shell .checkout-form__section select,
+  body.hem-shop-shell .checkout-form__section textarea,
+  body.hem-shop-shell .checkout-coupon__input-wrap input,
+  body.hem-shop-shell .checkout-coupon__card-badge,
+  body.hem-shop-shell .checkout-coupon__card-code,
+  body.hem-shop-shell .checkout-card-form__top strong,
+  body.hem-shop-shell .checkout-form__submit {
+    font-size: var(--demo-readable-body) !important;
+  }
+
+  body.hem-shop-shell .checkout-form__section input:not([type='radio']):not([type='checkbox']),
+  body.hem-shop-shell .checkout-form__section select,
+  body.hem-shop-shell .checkout-coupon__input-wrap input,
+  body.hem-shop-shell .checkout-form__submit {
+    min-height: 3.5rem !important;
+  }
+
+  body.hem-shop-shell .checkout-payment__option {
+    min-height: 4.25rem !important;
+    gap: 0.875rem !important;
+    padding-right: 1.25rem !important;
+    padding-left: 1.25rem !important;
+  }
+
+  body.hem-shop-shell .checkout-payment__radio {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+  }
+
+  body.hem-shop-shell .checkout-payment__icon,
+  body.hem-shop-shell .checkout-payment__icon svg {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+  }
+
+  body.hem-shop-shell .checkout-coupon__card {
+    min-height: 10rem !important;
+  }
+
+  body.hem-shop-shell .checkout-coupon__card-use {
+    width: 9.25rem !important;
+    padding-right: 1.25rem !important;
+    padding-left: 1.25rem !important;
+  }
+
+  body.hem-shop-shell .checkout-coupon button {
+    min-height: 3rem !important;
+  }
+
+  body.hem-shop-shell .checkout-sidebar__note svg {
+    width: 1.125rem !important;
+    height: 1.125rem !important;
+  }
+
+  /* Checkout success, receipt, and bank-transfer status */
+  body.hem-shop-shell .checkout-success {
+    max-width: 67.5rem !important;
+  }
+
+  body.hem-shop-shell .checkout-success__label,
+  body.hem-shop-shell .checkout-success__strip-label,
+  body.hem-shop-shell .checkout-success__field-label,
+  body.hem-shop-shell .checkout-success__eyebrow,
+  body.hem-shop-shell .checkout-success__payment-state-label,
+  body.hem-shop-shell .checkout-success__payment-state-meta dt,
+  body.hem-shop-shell .checkout-success__bank-info dt {
+    font-size: var(--demo-readable-micro) !important;
+    line-height: 1.4 !important;
+    letter-spacing: 0.02em !important;
+  }
+
+  body.hem-shop-shell .checkout-success__sub,
+  body.hem-shop-shell .checkout-success__strip-value,
+  body.hem-shop-shell .checkout-success__strip-id,
+  body.hem-shop-shell .checkout-success__badge,
+  body.hem-shop-shell .checkout-success__shipping-grid strong,
+  body.hem-shop-shell .checkout-success__shipping-grid span:not(.checkout-success__field-label),
+  body.hem-shop-shell .checkout-success__bank-info dd,
+  body.hem-shop-shell .checkout-success__review-note,
+  body.hem-shop-shell .checkout-success__variants,
+  body.hem-shop-shell .checkout-success__qty,
+  body.hem-shop-shell .checkout-success__totals dt,
+  body.hem-shop-shell .checkout-success__totals dd,
+  body.hem-shop-shell .checkout-success__payment-state > p:not(.checkout-success__payment-state-label),
+  body.hem-shop-shell .checkout-success__payment-state-meta dd,
+  body.hem-shop-shell .checkout-success__payment-state-link {
+    font-size: var(--demo-readable-small) !important;
+    line-height: 1.5 !important;
+  }
+
+  body.hem-shop-shell .checkout-success__card-heading,
+  body.hem-shop-shell .checkout-success__copy h3,
+  body.hem-shop-shell .checkout-success__item-total,
+  body.hem-shop-shell .checkout-success__totals-final dt,
+  body.hem-shop-shell .checkout-success__totals-final dd,
+  body.hem-shop-shell .checkout-success__paid-button,
+  body.hem-shop-shell .checkout-success__btn-primary,
+  body.hem-shop-shell .checkout-success__btn-ghost {
+    font-size: var(--demo-readable-body) !important;
+  }
+
+  body.hem-shop-shell .checkout-success__paid-button,
+  body.hem-shop-shell .checkout-success__btn-primary,
+  body.hem-shop-shell .checkout-success__btn-ghost {
+    min-height: 3.5rem !important;
+  }
+}
+
+@media (min-width: 1920px) {
+  body.hem-shop-shell .auth-modal.logout-confirm {
+    width: min(100%, 38.75rem) !important;
+    padding: 2.625rem !important;
+  }
+
+  body.hem-shop-shell .logout-confirm .auth-modal__close {
+    min-height: 3.25rem !important;
+    font-size: 1rem !important;
+  }
+}

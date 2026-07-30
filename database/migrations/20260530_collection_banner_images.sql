@@ -1,0 +1,34 @@
+-- Keep collection images aligned with the simplified collections schema.
+-- The frontend reads banner_image as bannerImage/imageUrl.
+
+CREATE OR REPLACE FUNCTION get_landing_collections()
+RETURNS TABLE (
+    type TEXT,
+    id UUID,
+    name TEXT,
+    slug TEXT,
+    featured BOOLEAN,
+    banner_image TEXT,
+    product_count INTEGER,
+    created_at TIMESTAMP WITH TIME ZONE
+)
+LANGUAGE sql
+STABLE
+AS $$
+    SELECT
+        'collection'::text AS type,
+        col.id,
+        col.name::text,
+        col.slug::text,
+        false AS featured,
+        col.banner_image::text,
+        COUNT(p.id)::int AS product_count,
+        col.created_at
+    FROM collections col
+    LEFT JOIN products p ON p.collection_id = col.id
+    WHERE col.status = 'active'
+      AND col.deleted_at IS NULL
+    GROUP BY col.id
+    ORDER BY col.created_at DESC NULLS LAST, col.name ASC
+    LIMIT 2;
+$$;

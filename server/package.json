@@ -1,0 +1,42 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "check": "node scripts/checkSyntax.js",
+    "dev": "nodemon server.js",
+    "lint": "eslint .",
+    "start": "node server.js",
+    "perf:benchmark": "node scripts/benchmarkPerformance.js",
+    "perf:storefront": "node scripts/benchmarkStorefrontActions.js",
+    "demo:seed": "node scripts/seedDemoData.js",
+    "passwords:check": "node scripts/migrateLegacyPasswords.js",
+    "passwords:migrate": "node scripts/migrateLegacyPasswords.js --apply",
+    "users:cleanup-pending": "node scripts/cleanupPendingUsers.js",
+    "verify:bank-transfer": "node scripts/verifyBankTransferLifecycle.js",
+    "verify:commerce": "node scripts/verifyCommerceWorkflow.js",
+    "verify:fresh-schema": "node scripts/verifyFreshSchema.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.1.1",
+    "nodemailer": "^8.0.10",
+    "pg": "^8.21.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.2.1",
+    "globals": "^17.5.0",
+    "nodemon": "^3.1.14"
+  }
+}

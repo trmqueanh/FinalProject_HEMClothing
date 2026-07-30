@@ -1,0 +1,50 @@
+@import './variables.css';
+@import './utilities.css';
+@import './animations.css';
+@import './pricePresentation.css';
+
+/* Keep sizing stable even when a lazy-loaded route is opened directly. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html.hem-admin-shell,
+body.hem-admin-shell,
+body.hem-admin-shell #app {
+  background: #ffffff;
+}
+
+/* Keep every storefront and Studio surface on the same square-corner system. */
+html body.hem-shop-shell #app,
+html body.hem-shop-shell #app *,
+html body.hem-shop-shell #app *::before,
+html body.hem-shop-shell #app *::after,
+html body.hem-admin-shell #app,
+html body.hem-admin-shell #app *,
+html body.hem-admin-shell #app *::before,
+html body.hem-admin-shell #app *::after,
+html body.hem-shop-shell > :not(#app),
+html body.hem-shop-shell > :not(#app) *,
+html body.hem-shop-shell > :not(#app) *::before,
+html body.hem-shop-shell > :not(#app) *::after,
+html body.hem-admin-shell > :not(#app),
+html body.hem-admin-shell > :not(#app) *,
+html body.hem-admin-shell > :not(#app) *::before,
+html body.hem-admin-shell > :not(#app) *::after {
+  border-radius: 0 !important;
+}
+
+/* Landing rails use rounded rectangular campaign tiles, not the global square-corner reset. */
+html body.hem-shop-shell #app .circle-rail__media {
+  border-radius: 16px !important;
+}
+
+html body.hem-shop-shell #app .circle-rail__media--image {
+  border-radius: 16px !important;
+}
+
+html body.hem-shop-shell #app .circle-rail__media img {
+  border-radius: 0 !important;
+}

@@ -1,0 +1,2 @@
+-- Product seed data should match your Neon catalog.
+-- Styles are referenced through products.style_id -> styles.id; no style text is stored on products.

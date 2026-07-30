@@ -1,0 +1,52 @@
+/* Extracted from Profile.vue: profile page shell and section spacing styles. */
+.profile-view {
+  width: 100%;
+  max-width: 1920px;
+  margin: 0 auto;
+  padding: 0 42px 90px;
+  color: var(--color-text-primary);
+}
+
+.profile-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+  gap: clamp(28px, 4vw, 58px);
+  align-items: start;
+  padding-top: 32px;
+}
+
+.profile-content {
+  min-width: 0;
+}
+
+.profile-content__panel {
+  min-width: 0;
+}
+
+.profile-panel-enter-active,
+.profile-panel-leave-active {
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.profile-panel-enter-from {
+  opacity: 0;
+  transform: translateX(8px);
+}
+
+.profile-panel-leave-to {
+  opacity: 0;
+  transform: translateX(-8px);
+}
+
+@media (max-width: 1100px) {
+  .profile-layout {
+    grid-template-columns: 1fr;
+    gap: 42px;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-view {
+    padding: 0 18px 60px;
+  }
+}

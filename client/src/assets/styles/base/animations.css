@@ -1,0 +1,18 @@
+@keyframes editorial-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.animate-editorial-fade-up {
+  animation: editorial-fade-up var(--duration-slow) var(--ease-premium) both;
+}
+

@@ -1,0 +1,26 @@
+{
+  "name": "hem-fashion-ecommerce",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Premium full-stack fashion ecommerce capstone project.",
+  "scripts": {
+    "client:dev": "npm --prefix client run dev",
+    "client:build": "npm --prefix client run build",
+    "server:check": "npm --prefix server run check",
+    "server:dev": "npm --prefix server run dev",
+    "server:lint": "npm --prefix server run lint",
+    "server:start": "npm --prefix server run start",
+    "build": "npm --prefix client run build"
+  },
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "nodemailer": "^8.0.10",
+    "pg": "^8.21.0"
+  }
+}

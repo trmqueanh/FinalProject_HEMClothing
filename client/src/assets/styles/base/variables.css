@@ -1,0 +1,25 @@
+:root {
+  --color-rating-star: #d4a017;
+  --color-rating-star-muted: rgba(212, 160, 23, 0.22);
+  --ease-premium: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --duration-fast: 160ms;
+  --duration-base: 240ms;
+  --duration-slow: 380ms;
+  --container-max: 1680px;
+}
+
+html {
+  font-size: 100%;
+}
+
+@media (min-width: 1440px) {
+  html {
+    font-size: 106.25%;
+  }
+}
+
+@media (min-width: 1920px) {
+  html {
+    font-size: 112.5%;
+  }
+}

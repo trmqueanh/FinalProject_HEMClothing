@@ -1,0 +1,22 @@
+/* Extracted from NotFound.vue: not found page card styles. */
+.not-found-view {
+  min-height: 60vh;
+  place-items: center;
+}
+
+.not-found-view__card {
+  max-width: 520px;
+  text-align: center;
+}
+
+.not-found-view__card h1 {
+  margin: 8px 0;
+  font-size: clamp(38px, 8vw, 88px);
+  line-height: 0.92;
+  letter-spacing: -0.08em;
+}
+
+.not-found-view__card p {
+  margin: 0 0 20px;
+  color: var(--color-text-secondary);
+}

@@ -1,0 +1,51 @@
+const express = require('express');
+const orderController = require('../controllers/orderController');
+const returnRefundController = require('../controllers/returnRefundController');
+const requireAuth = require('../middleware/requireAuth');
+const requireAdmin = require('../middleware/requireAdmin');
+
+const router = express.Router();
+
+router.route('/orders/checkout').post(requireAuth, orderController.checkout);
+router.route('/orders/vouchers/eligible').post(requireAuth, orderController.listEligibleVouchers);
+router.route('/orders/vouchers/validate').post(requireAuth, orderController.validateSelectedVoucher);
+router.route('/orders/history').get(requireAuth, orderController.listUserOrders);
+router.route('/orders/returns').get(requireAuth, returnRefundController.listCustomerReturns);
+router.route('/orders/returns/:returnRequestId').get(requireAuth, returnRefundController.readCustomerReturn);
+router.route('/orders/returns/:returnRequestId/refund-account').put(requireAuth, returnRefundController.saveCustomerRefundAccount);
+router.route('/orders/refunds/:refundId/refund-account').put(requireAuth, returnRefundController.saveRefundAccount);
+router.route('/orders/:orderId').get(requireAuth, orderController.readUserOrder);
+router.route('/orders/:orderId/bank-transfer/activate').put(requireAuth, orderController.activateBankTransferPayment);
+router.route('/orders/:orderId/bank-transfer/paid').put(requireAuth, orderController.markBankTransferPaid);
+router.route('/orders/:orderId/bank-transfer/expire').put(requireAuth, orderController.expireBankTransferPayment);
+router.route('/orders/:orderId/returns').post(requireAuth, returnRefundController.createReturn);
+router.route('/orders/:orderId/return').post(requireAuth, returnRefundController.createReturn);
+router.route('/orders/:orderId/buy-again').post(requireAuth, orderController.buyAgainOrderItems);
+router.route('/orders/:orderId/items/:orderItemId/buy-again').post(requireAuth, orderController.buyAgainOrderItem);
+router.route('/orders/:orderId/confirm-received').put(requireAuth, orderController.confirmReceived);
+router.route('/orders/:orderId/cancel').put(requireAuth, returnRefundController.cancelCustomerOrder);
+
+router.route('/admin/orders').get(requireAdmin, orderController.listAdminOrders);
+router.route('/admin/orders/:orderId').put(requireAdmin, orderController.updateAdminOrder);
+router.route('/admin/orders/:orderId').get(requireAdmin, orderController.readAdminOrder);
+router.route('/admin/bank-transfer-payments').get(requireAdmin, orderController.listAdminBankTransferPayments);
+router.route('/admin/bank-transfer-payments/:orderId/confirm').put(requireAdmin, orderController.confirmAdminBankTransferPayment);
+router.route('/admin/bank-transfer-payments/:orderId/reject').put(requireAdmin, returnRefundController.rejectAdminBankTransferPayment);
+router.route('/admin/orders/:orderId/cancel').put(requireAdmin, returnRefundController.cancelAdminOrder);
+router.route('/admin/orders/:orderId/delivery-failed').put(requireAdmin, orderController.markAdminDeliveryFailed);
+router.route('/admin/orders/:orderId/returned-to-warehouse').put(requireAdmin, returnRefundController.returnFailedDelivery);
+router.route('/admin/return-requests').get(requireAdmin, returnRefundController.listAdminReturns);
+router.route('/admin/return-requests/:returnRequestId').get(requireAdmin, returnRefundController.readAdminReturn);
+router.route('/admin/return-requests/:returnRequestId/approve').put(requireAdmin, returnRefundController.approveReturn);
+router.route('/admin/return-requests/:returnRequestId/reject').put(requireAdmin, returnRefundController.rejectReturn);
+router.route('/admin/return-requests/:returnRequestId/received').put(requireAdmin, returnRefundController.receiveReturn);
+router.route('/admin/return-requests/:returnRequestId/inspect/start').put(requireAdmin, returnRefundController.startInspection);
+router.route('/admin/return-requests/:returnRequestId/inspect').put(requireAdmin, returnRefundController.inspectReturn);
+router.route('/admin/refunds').get(requireAdmin, returnRefundController.listRefunds);
+router.route('/admin/refunds/:refundId').get(requireAdmin, returnRefundController.readRefund);
+router.route('/admin/refunds/:refundId/processing').put(requireAdmin, returnRefundController.startRefund);
+router.route('/admin/refunds/:refundId/complete').put(requireAdmin, returnRefundController.completeRefund);
+router.route('/admin/refunds/:refundId/fail').put(requireAdmin, returnRefundController.failRefund);
+router.route('/admin/refunds/:refundId/retry').put(requireAdmin, returnRefundController.retryRefund);
+
+module.exports = router;

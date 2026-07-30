@@ -1,0 +1,47 @@
+{
+  "archived_at": "2026-07-23",
+  "source_table": "public.legacy_refund_requests",
+  "row_count": 4,
+  "rows": [
+    {
+      "id": "5ebe1692-675f-4297-aeef-fb805e6a68f1",
+      "order_id": "f5d2c007-1a36-4558-a0ce-8996ab0e22f9",
+      "user_id": "d073a508-3677-44ea-b551-4e321ad5a1b1",
+      "reason": "Customer requested a refund after the delivery address could not be confirmed.",
+      "status": "rejected",
+      "admin_note": "Refund rejected because customer support is still waiting for address confirmation.",
+      "created_at": "2026-07-06T10:47:49.395Z",
+      "updated_at": "2026-07-10T11:46:32.361Z"
+    },
+    {
+      "id": "f0c391f5-3024-46d5-ae0a-c5e364699f66",
+      "order_id": "3c707b8d-0732-4c0b-a7bf-baf37f2d3422",
+      "user_id": "01ff5cf7-6948-49b7-b416-41c965937a7b",
+      "reason": "The order was paid online but could not be completed, so the customer requested a refund.",
+      "status": "refunded",
+      "admin_note": "Refund has been completed to close the unresolved paid order.",
+      "created_at": "2026-07-07T10:47:49.395Z",
+      "updated_at": "2026-07-10T11:46:32.361Z"
+    },
+    {
+      "id": "aca0d804-73d5-4e43-b551-c1530d987cd6",
+      "order_id": "d5aecc93-adcd-4098-849c-58cc69eb769f",
+      "user_id": "1349e600-516b-49c6-9d37-0676b4cb519e",
+      "reason": "Delivery failed after multiple attempts, so the customer asked for the payment to be refunded.",
+      "status": "approved",
+      "admin_note": "Package is being returned to warehouse. Refund can continue once inventory is reconciled.",
+      "created_at": "2026-07-08T10:47:49.395Z",
+      "updated_at": "2026-07-10T11:46:32.361Z"
+    },
+    {
+      "id": "c5f399ae-62f1-43b1-b3ed-c43ca1dc67fa",
+      "order_id": "71f0ae90-8ffc-427f-8eed-8103c1ab3965",
+      "user_id": "d073a508-3677-44ea-b551-4e321ad5a1b1",
+      "reason": "Customer cancelled the order before fulfillment and requested a refund to the original payment method.",
+      "status": "refunded",
+      "admin_note": "Refund approved because the order was cancelled before dispatch.",
+      "created_at": "2026-07-09T10:47:49.395Z",
+      "updated_at": "2026-07-10T11:46:32.361Z"
+    }
+  ]
+}

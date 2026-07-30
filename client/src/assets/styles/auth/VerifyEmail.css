@@ -1,0 +1,33 @@
+.verify-email-view {
+  display: grid;
+  min-height: calc(100vh - var(--store-header-height));
+  align-content: center;
+  padding-top: 48px;
+  padding-bottom: 80px;
+}
+
+.verify-email-card {
+  width: min(100%, 460px);
+  margin: 0 auto;
+  padding: 36px;
+}
+
+.verify-email-card h1 {
+  margin: 0 0 12px;
+  color: var(--color-text-primary);
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.verify-email-card p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.verify-email-card__actions {
+  display: grid;
+  gap: 12px;
+  margin-top: 28px;
+}

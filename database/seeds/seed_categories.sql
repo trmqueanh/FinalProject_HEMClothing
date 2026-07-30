@@ -1,0 +1,2 @@
+-- Keep this seed small for demos. Categories are one-level records by department.
+-- Required columns: name, label, slug, department_id.

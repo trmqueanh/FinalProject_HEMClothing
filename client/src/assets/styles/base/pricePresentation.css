@@ -1,0 +1,23 @@
+/* Shared storefront price states: regular and sale pricing. */
+.price-current {
+  color: #111111 !important;
+}
+
+.price-current--sale {
+  color: #c41230 !important;
+}
+
+.price-compare {
+  color: rgba(17, 17, 17, 0.48) !important;
+  font-size: 0.78em !important;
+  font-weight: 500 !important;
+}
+
+.price-compare--sale {
+  text-decoration: line-through !important;
+  text-decoration-thickness: 1px !important;
+}
+
+.price-label--sale {
+  color: #c41230 !important;
+}

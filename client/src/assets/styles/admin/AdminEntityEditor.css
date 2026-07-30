@@ -1,0 +1,318 @@
+.admin-entity-editor {
+  width: min(100%, 1120px);
+  margin: 0 auto;
+}
+
+.admin-entity-editor__heading {
+  margin-bottom: 22px;
+}
+
+.admin-entity-editor__heading h1,
+.admin-entity-editor__heading p {
+  margin: 0;
+}
+
+.admin-entity-editor__heading h1 {
+  color: var(--text-primary);
+  font-size: clamp(24px, 2.2vw, 34px);
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+}
+
+.admin-entity-editor__heading p {
+  margin-top: 8px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.admin-entity-editor .admin-editor-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin: 0;
+  padding: 26px;
+  background: #ffffff;
+}
+
+.admin-entity-editor .admin-editor-field {
+  gap: 8px;
+}
+
+.admin-entity-editor .admin-editor-field > span {
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.admin-entity-editor .admin-editor-field small {
+  color: var(--text-tertiary);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.admin-entity-editor__full,
+.admin-entity-editor .admin-editor-form__actions {
+  grid-column: 1 / -1;
+}
+
+.collection-department-card {
+  min-width: 0;
+  margin: 0;
+  padding: 20px;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+}
+
+.collection-department-card__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.collection-department-card__heading > div {
+  display: grid;
+  gap: 4px;
+}
+
+.collection-department-card__heading strong {
+  font-size: 15px;
+}
+
+.collection-department-card__heading small {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.collection-department-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.collection-banner-upload {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.collection-banner-upload__preview {
+  min-height: 190px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px dashed var(--input-border);
+  border-radius: var(--radius);
+  background: #f6f6f6;
+  color: var(--text-tertiary);
+  font-size: 13px;
+}
+
+.collection-banner-upload__preview img {
+  width: 100%;
+  height: 230px;
+  display: block;
+  object-fit: cover;
+}
+
+.collection-banner-upload__actions {
+  display: grid;
+  gap: 10px;
+}
+
+.collection-banner-upload__choose {
+  position: relative;
+  overflow: hidden;
+}
+
+.collection-banner-upload__choose input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.admin-entity-editor .admin-editor-form__actions {
+  justify-content: flex-end;
+  padding-top: 8px;
+}
+
+.admin-entity-editor .admin-editor-form__actions > .admin-hero__primary,
+.admin-entity-editor .admin-editor-form__actions > .admin-hero__secondary {
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  width: 168px;
+  min-width: 168px;
+  height: 44px !important;
+  min-height: 44px !important;
+  padding: 0 18px;
+  font-size: 14px !important;
+  line-height: 1;
+}
+
+@media (min-width: 1440px) {
+  .admin-entity-editor {
+    width: min(100%, 1280px);
+  }
+
+  .admin-entity-editor__heading h1 {
+    font-size: 36px;
+  }
+
+  .admin-entity-editor__heading p {
+    font-size: 16px;
+  }
+
+  .admin-entity-editor .admin-editor-form {
+    gap: 22px;
+    padding: 32px;
+  }
+
+  .admin-entity-editor .admin-editor-field > span,
+  .collection-department-toggle,
+  .collection-banner-upload__preview {
+    font-size: 15px;
+  }
+
+  .admin-entity-editor .admin-editor-field small,
+  .collection-department-card__heading small {
+    font-size: 14px;
+  }
+
+  .collection-department-card__heading strong {
+    font-size: 17px;
+  }
+}
+
+@media (min-width: 1920px) {
+  .admin-entity-editor {
+    width: min(100%, 1440px);
+  }
+
+  .admin-entity-editor__heading {
+    margin-bottom: 30px;
+  }
+
+  .admin-entity-editor__heading h1 {
+    font-size: 42px;
+  }
+
+  .admin-entity-editor__heading p {
+    font-size: 18px;
+  }
+
+  .admin-entity-editor .admin-editor-form {
+    gap: 26px;
+    padding: 38px;
+  }
+
+  .admin-entity-editor .admin-editor-field > span,
+  .collection-department-toggle,
+  .collection-banner-upload__preview {
+    font-size: 17px;
+  }
+
+  .admin-entity-editor .admin-editor-field small,
+  .collection-department-card__heading small {
+    font-size: 16px;
+  }
+
+  .collection-department-card__heading strong {
+    font-size: 20px;
+  }
+
+  .admin-entity-editor .admin-editor-form__actions > .admin-hero__primary,
+  .admin-entity-editor .admin-editor-form__actions > .admin-hero__secondary {
+    width: 196px;
+    min-width: 196px;
+    height: 50px !important;
+    min-height: 50px !important;
+    font-size: 16px !important;
+  }
+}
+
+@media (min-width: 2560px) {
+  .admin-entity-editor {
+    width: min(100%, 1680px);
+  }
+
+  .admin-entity-editor__heading h1 {
+    font-size: 50px;
+  }
+
+  .admin-entity-editor__heading p {
+    font-size: 21px;
+  }
+
+  .admin-entity-editor .admin-editor-form {
+    gap: 32px;
+    padding: 46px;
+  }
+
+  .admin-entity-editor .admin-editor-field > span,
+  .collection-department-toggle,
+  .collection-banner-upload__preview {
+    font-size: 20px;
+  }
+
+  .admin-entity-editor .admin-editor-field small,
+  .collection-department-card__heading small {
+    font-size: 18px;
+  }
+
+  .collection-department-card__heading strong {
+    font-size: 23px;
+  }
+
+  .admin-entity-editor .admin-editor-form__actions > .admin-hero__primary,
+  .admin-entity-editor .admin-editor-form__actions > .admin-hero__secondary {
+    width: 224px;
+    min-width: 224px;
+    height: 58px !important;
+    min-height: 58px !important;
+    font-size: 18px !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .admin-entity-editor .admin-editor-form {
+    grid-template-columns: 1fr;
+    padding: 20px;
+  }
+
+  .admin-entity-editor__full,
+  .admin-entity-editor .admin-editor-form__actions {
+    grid-column: auto;
+  }
+
+  .admin-entity-editor .admin-editor-form__actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .admin-entity-editor .admin-editor-form__actions > .admin-hero__primary,
+  .admin-entity-editor .admin-editor-form__actions > .admin-hero__secondary {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .collection-department-card__heading,
+  .collection-banner-upload {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .collection-department-card__heading {
+    display: grid;
+  }
+
+  .collection-banner-upload__actions {
+    grid-template-columns: 1fr 1fr;
+  }
+}

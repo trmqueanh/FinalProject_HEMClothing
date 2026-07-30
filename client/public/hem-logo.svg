@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2200 500">
+  <style>
+    .logo {
+      font-family: "Didot", "Bodoni MT", "Times New Roman", serif;
+      font-size: 430px;
+      font-weight: 700;
+      letter-spacing: -22px;
+      fill: #111111;
+    }
+  </style>
+
+  <text x="1100" y="390" text-anchor="middle" class="logo">HEM</text>
+</svg>

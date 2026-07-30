@@ -1,0 +1,1 @@
+DROP INDEX IF EXISTS idx_product_materials_unique_product_part_material;
