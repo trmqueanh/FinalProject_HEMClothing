@@ -86,12 +86,7 @@ export const DEFAULT_PROFILE_FORM = () => ({
   phone: '',
   gender: '',
   birthDate: '',
-  avatarUrl: '',
-  paymentProvider: 'cod',
-  cardHolderName: '',
-  cardNumber: '',
-  cardLast4: '',
-  cardBrand: ''
+  paymentProvider: 'cod'
 });
 
 export const DEFAULT_ADDRESS_FORM = () => ({
@@ -105,31 +100,6 @@ export const DEFAULT_ADDRESS_FORM = () => ({
   addressLabel: '',
   isDefault: false
 });
-
-// Profile card helpers: normalize payment input and validate saved card edits.
-export const CARD_NUMBER_MIN_DIGITS = 12;
-export const getDigits = value => String(value || '').replace(/\D/g, '');
-
-export const formatCardNumber = value =>
-  getDigits(value)
-    .slice(0, 19)
-    .replace(/(.{4})/g, '$1 ')
-    .trim();
-
-export const detectCardBrand = value => {
-  const digits = getDigits(value);
-
-  if (digits.startsWith('4')) return 'Visa';
-  if (/^(5[1-5]|2(2[2-9]|[3-6]|7[01]|720))/.test(digits)) return 'Mastercard';
-  return '';
-};
-
-export const isValidCardHolderName = value => {
-  const name = String(value || '').trim();
-  return name.length >= 2 && /\p{L}/u.test(name) && /^[\p{L}\s.'-]+$/u.test(name);
-};
-
-export const isMaskedSavedCard = value => String(value || '').includes('•');
 
 // Profile display helpers: labels and short text used by orders, reviews, and settings.
 export const displayDate = value =>

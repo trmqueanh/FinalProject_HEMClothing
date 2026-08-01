@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS orders (
     CONSTRAINT fk_orders_user
         FOREIGN KEY (user_id)
         REFERENCES users(id)
-        ON DELETE CASCADE,
+        ON DELETE RESTRICT,
 
     CONSTRAINT fk_orders_payment_reviewed_by
         FOREIGN KEY (payment_reviewed_by)

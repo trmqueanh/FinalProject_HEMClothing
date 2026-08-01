@@ -129,42 +129,6 @@ controller.readCustomerOrders = async (req, res) => {
   }
 };
 
-controller.deleteAccount = async (req, res) => {
-  try {
-    const db = getDb(req);
-    const accountId = String(req.params.accountId || '').trim();
-
-    if (!accountId) {
-      return res.status(400).json({ message: 'Account id is required.' });
-    }
-
-    if (String(req.authUser && req.authUser.id) === accountId) {
-      return res.status(400).json({ message: 'You cannot delete your own admin account.' });
-    }
-
-    const result = await userModel.deleteById(db, accountId);
-
-    if (!result.rowCount) {
-      return res.status(404).json({ message: 'Account not found.' });
-    }
-
-    invalidateAuthUser(result.rows[0]);
-
-    return res.json({
-      message: 'Account deleted successfully. The user must register again to shop.',
-      id: String(result.rows[0].id)
-    });
-  } catch (error) {
-    if (error && error.code === '23503') {
-      return res.status(409).json({
-        message: 'This account has order or transaction history. Deactivate it instead.'
-      });
-    }
-
-    return sendError(res, error, 400);
-  }
-};
-
 controller.updateAccountStatus = async (req, res) => {
   try {
     const db = getDb(req);

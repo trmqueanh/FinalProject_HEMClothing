@@ -162,11 +162,7 @@ const serializeProfileRow = row => ({
   phone: String((row && row.phone) || ''),
   gender: String((row && row.gender) || ''),
   birthDate: serializeMemberBirthDate(row && row.birth_date),
-  avatarUrl: String((row && row.avatar_url) || ''),
   paymentProvider: String((row && row.payment_provider) || 'cod'),
-  cardHolderName: String((row && row.card_holder_name) || ''),
-  cardLast4: String((row && row.card_last4) || ''),
-  cardBrand: String((row && row.card_brand) || ''),
   createdAt: row && row.created_at ? row.created_at : null,
   updatedAt: row && row.updated_at ? row.updated_at : null
 });
@@ -239,11 +235,7 @@ const normalizeProfilePayload = body => {
     phone,
     gender,
     birthDate,
-    avatarUrl: String(body.avatarUrl || body.avatar_url || '').trim(),
-    paymentProvider,
-    cardHolderName: '',
-    cardLast4: '',
-    cardBrand: ''
+    paymentProvider
   };
 };
 

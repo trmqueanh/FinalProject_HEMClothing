@@ -12,6 +12,7 @@ const schemaFiles = [
   'departments.sql',
   'product_groups.sql',
   'categories.sql',
+  'size_guides.sql',
   'collections.sql',
   'fits.sql',
   'styles.sql',
@@ -33,11 +34,10 @@ const schemaFiles = [
   'product_reviews.sql',
   'user_favorites.sql',
   'vouchers.sql',
-  'homepage_sections.sql',
-  'homepage_section_items.sql',
   'search_history.sql',
   'supporting_tables.sql',
   'transactional_email_logs.sql',
+  'currency_conversion_log.sql',
   'landing_collections.sql'
 ];
 
@@ -58,13 +58,32 @@ const main = async () => {
           to_regclass($1) IS NOT NULL AS orders,
           to_regclass($2) IS NOT NULL AS return_items,
           to_regclass($3) IS NOT NULL AS refunds,
-          to_regclass($4) IS NOT NULL AS email_logs
+          to_regclass($4) IS NOT NULL AS email_logs,
+          to_regclass($5) IS NOT NULL AS size_guides,
+          to_regclass($6) IS NOT NULL AS currency_conversion_log,
+          EXISTS (
+            SELECT 1
+            FROM information_schema.columns
+            WHERE table_schema = $7
+              AND table_name = 'cart_items'
+              AND column_name = 'color_variant_id'
+          ) AS cart_color_variant,
+          EXISTS (
+            SELECT 1
+            FROM information_schema.columns
+            WHERE table_schema = $7
+              AND table_name = 'return_requests'
+              AND column_name = 'refund_account_verified_at'
+          ) AS refund_account_verification
       `,
       [
         `${schemaName}.orders`,
         `${schemaName}.return_items`,
         `${schemaName}.refunds`,
-        `${schemaName}.transactional_email_logs`
+        `${schemaName}.transactional_email_logs`,
+        `${schemaName}.size_guides`,
+        `${schemaName}.currency_conversion_log`,
+        schemaName
       ]
     );
     if (Object.values(result.rows[0]).some(value => value !== true)) {

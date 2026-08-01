@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS cart_items (
     quantity INTEGER NOT NULL DEFAULT 1,
     size_label VARCHAR(20),
     color_name VARCHAR(80),
+    color_variant_id UUID,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
 
@@ -23,6 +24,11 @@ CREATE TABLE IF NOT EXISTS cart_items (
         REFERENCES products(id)
         ON DELETE CASCADE,
 
+    CONSTRAINT fk_cart_items_color_variant
+        FOREIGN KEY (color_variant_id)
+        REFERENCES product_color_variants(id)
+        ON DELETE SET NULL,
+
     CONSTRAINT cart_items_quantity_check
         CHECK (quantity > 0)
 );
@@ -32,6 +38,13 @@ ON cart_items(cart_id);
 
 CREATE INDEX IF NOT EXISTS idx_cart_items_product_id
 ON cart_items(product_id);
+
+CREATE INDEX IF NOT EXISTS idx_cart_items_color_variant_id
+ON cart_items(color_variant_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_cart_items_unique_variant
+ON cart_items(cart_id, product_id, COALESCE(size_label, ''), color_variant_id)
+WHERE color_variant_id IS NOT NULL;
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 CREATE TABLE IF NOT EXISTS carts (
@@ -155,50 +168,10 @@ CREATE TABLE IF NOT EXISTS fits (
 
 CREATE INDEX IF NOT EXISTS idx_fits_scope
 ON fits(product_group_id, department_id, status);
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
-
-CREATE TABLE IF NOT EXISTS homepage_section_items (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    section_id UUID NOT NULL,
-    item_type VARCHAR(30) NOT NULL,
-    item_id UUID NOT NULL,
-    display_priority INTEGER NOT NULL DEFAULT 0,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-
-    CONSTRAINT fk_homepage_section_items_section
-        FOREIGN KEY (section_id)
-        REFERENCES homepage_sections(id)
-        ON DELETE CASCADE,
-
-    CONSTRAINT homepage_section_items_type_check CHECK (item_type IN ('product', 'collection'))
+CREATE TABLE IF NOT EXISTS currency_conversion_log (
+    migration_name VARCHAR(120) PRIMARY KEY,
+    converted_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
-
-CREATE INDEX IF NOT EXISTS idx_homepage_section_items_section
-ON homepage_section_items(section_id);
-
-CREATE INDEX IF NOT EXISTS idx_homepage_section_items_item
-ON homepage_section_items(item_type, item_id);
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
-
-CREATE TABLE IF NOT EXISTS homepage_sections (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    section_type VARCHAR(50) NOT NULL,
-    title VARCHAR(150) NOT NULL,
-    gender VARCHAR(30),
-    status VARCHAR(30) NOT NULL DEFAULT 'active',
-    display_limit INTEGER NOT NULL DEFAULT 4,
-    display_priority INTEGER NOT NULL DEFAULT 0,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-
-    CONSTRAINT homepage_sections_display_limit_check CHECK (display_limit > 0)
-);
-
-CREATE INDEX IF NOT EXISTS idx_homepage_sections_status
-ON homepage_sections(status);
-
-CREATE INDEX IF NOT EXISTS idx_homepage_sections_type_priority
-ON homepage_sections(section_type, display_priority);
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 CREATE TABLE IF NOT EXISTS inventory_logs (
@@ -441,7 +414,7 @@ CREATE TABLE IF NOT EXISTS orders (
     CONSTRAINT fk_orders_user
         FOREIGN KEY (user_id)
         REFERENCES users(id)
-        ON DELETE CASCADE,
+        ON DELETE RESTRICT,
 
     CONSTRAINT fk_orders_payment_reviewed_by
         FOREIGN KEY (payment_reviewed_by)
@@ -1076,6 +1049,9 @@ CREATE TABLE IF NOT EXISTS return_requests (
     refund_account_holder VARCHAR(160),
     refund_account_status VARCHAR(30) NOT NULL DEFAULT 'not_provided',
     refund_account_submitted_at TIMESTAMP WITH TIME ZONE,
+    refund_account_verified_at TIMESTAMP WITH TIME ZONE,
+    refund_account_verified_by UUID,
+    refund_account_rejection_reason TEXT,
     requested_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     approved_at TIMESTAMP WITH TIME ZONE,
     rejected_at TIMESTAMP WITH TIME ZONE,
@@ -1099,6 +1075,7 @@ CREATE TABLE IF NOT EXISTS return_requests (
     CONSTRAINT fk_return_requests_approved_by FOREIGN KEY (approved_by) REFERENCES users(id) ON DELETE SET NULL,
     CONSTRAINT fk_return_requests_received_by FOREIGN KEY (received_by) REFERENCES users(id) ON DELETE SET NULL,
     CONSTRAINT fk_return_requests_inspected_by FOREIGN KEY (inspected_by) REFERENCES users(id) ON DELETE SET NULL,
+    CONSTRAINT return_requests_refund_account_verified_by_fkey FOREIGN KEY (refund_account_verified_by) REFERENCES users(id) ON DELETE SET NULL,
     CONSTRAINT return_requests_reason_check
         CHECK (reason IN ('wrong_size', 'not_as_expected', 'changed_mind', 'defective', 'other')),
 
@@ -1136,6 +1113,22 @@ ON return_requests(order_id, created_at DESC);
 
 CREATE INDEX IF NOT EXISTS idx_return_requests_refund_account_status
 ON return_requests(refund_account_status, updated_at DESC);
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+CREATE TABLE IF NOT EXISTS size_guides (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    category_id UUID NOT NULL UNIQUE,
+    title VARCHAR(150) NOT NULL,
+    unit VARCHAR(20) DEFAULT 'cm',
+    guide_data JSONB NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+
+    CONSTRAINT size_guides_category_id_fkey
+        FOREIGN KEY (category_id)
+        REFERENCES categories(id)
+        ON DELETE CASCADE
+);
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 CREATE TABLE IF NOT EXISTS search_history (
@@ -1320,11 +1313,7 @@ CREATE TABLE IF NOT EXISTS user_profiles (
     phone VARCHAR(30) NOT NULL DEFAULT '',
     gender VARCHAR(20) NOT NULL DEFAULT '',
     birth_date DATE,
-    avatar_url TEXT NOT NULL DEFAULT '',
     payment_provider VARCHAR(50) NOT NULL DEFAULT 'cod',
-    card_holder_name VARCHAR(120) NOT NULL DEFAULT '',
-    card_last4 VARCHAR(4) NOT NULL DEFAULT '',
-    card_brand VARCHAR(30) NOT NULL DEFAULT '',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
 
@@ -1332,10 +1321,6 @@ CREATE TABLE IF NOT EXISTS user_profiles (
       CHECK (gender IN ('male', 'female', 'other', '')),
     CONSTRAINT user_profiles_payment_provider_check
       CHECK (payment_provider IN ('cod', 'bank_transfer')),
-    CONSTRAINT user_profiles_card_last4_check
-      CHECK (card_last4 ~ '^[0-9]{0,4}$'),
-    CONSTRAINT user_profiles_card_brand_check
-      CHECK (card_brand IN ('visa', 'mastercard', '')),
     CONSTRAINT user_profiles_user_id_fkey
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

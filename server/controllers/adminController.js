@@ -400,7 +400,6 @@ const accountAdminController = createAccountAdminController({
 exports.listAccounts = accountAdminController.listAccounts;
 exports.readCustomer = accountAdminController.readCustomer;
 exports.readCustomerOrders = accountAdminController.readCustomerOrders;
-exports.deleteAccount = accountAdminController.deleteAccount;
 exports.updateAccountStatus = accountAdminController.updateAccountStatus;
 
 const voucherAdminController = createVoucherAdminController({

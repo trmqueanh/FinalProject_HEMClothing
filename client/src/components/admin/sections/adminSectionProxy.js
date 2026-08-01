@@ -212,7 +212,6 @@ const ADMIN_SECTION_PROXY_KEYS = [...new Set([
   'removeProduct',
   'requestCancelOrder',
   'rejectBankTransferPayment',
-  'requestDeleteAccount',
   'requestToggleAccountStatus',
   'resetCategoryForm',
   'resetCollectionForm',

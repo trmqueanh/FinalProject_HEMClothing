@@ -34,10 +34,7 @@ router.route('/admin/collections/:collectionId/status').patch(requireAdmin, admi
 router.route('/admin/accounts').get(requireAdmin, adminController.listAccounts);
 router.route('/admin/accounts/:accountId/orders').get(requireAdmin, adminController.readCustomerOrders);
 router.route('/admin/accounts/:accountId/status').patch(requireAdmin, adminController.updateAccountStatus);
-router
-    .route('/admin/accounts/:accountId')
-    .get(requireAdmin, adminController.readCustomer)
-    .delete(requireAdmin, adminController.deleteAccount);
+router.route('/admin/accounts/:accountId').get(requireAdmin, adminController.readCustomer);
 router.route('/admin/inventory').get(requireAdmin, adminController.listInventory);
 router.route('/admin/inventory/:variantId/history').get(requireAdmin, adminController.getInventoryHistory);
 router.route('/admin/inventory/import').post(requireAdmin, adminController.importInventory);

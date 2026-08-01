@@ -755,17 +755,11 @@ Table "user_profiles" {
   "phone" "character varying(30)" [not null, default: `''::charactervarying`]
   "gender" "character varying(20)" [not null, default: `''::charactervarying`]
   "birth_date" date
-  "avatar_url" text [not null, default: `''::text`]
   "payment_provider" "character varying(50)" [not null, default: `'cod'::charactervarying`]
-  "card_holder_name" "character varying(120)" [not null, default: `''::charactervarying`]
-  "card_last4" "character varying(4)" [not null, default: `''::charactervarying`]
   "created_at" timestamp [default: `now()`]
   "updated_at" timestamp [default: `now()`]
-  "card_brand" "character varying(30)" [not null, default: `''::charactervarying`]
 
   Checks {
-    `((card_brand)::text = ANY ((ARRAY['visa'::character varying, 'mastercard'::character varying, ''::character varying])::text[]))` [name: 'user_profiles_card_brand_check']
-    `((card_last4)::text ~ '^[0-9]{0,4}$'::text)` [name: 'user_profiles_card_last4_check']
     `((gender)::text = ANY ((ARRAY['male'::character varying, 'female'::character varying, 'other'::character varying, ''::character varying])::text[]))` [name: 'user_profiles_gender_check']
     `((payment_provider)::text = ANY ((ARRAY['cod'::character varying, 'bank_transfer'::character varying])::text[]))` [name: 'user_profiles_payment_provider_check']
   }
@@ -891,7 +885,7 @@ Ref "fk_order_status_history_order":"orders"."id" < "order_status_history"."orde
 
 Ref "fk_orders_payment_reviewed_by":"users"."id" < "orders"."payment_reviewed_by" [delete: set null]
 
-Ref "fk_orders_user":"users"."id" < "orders"."user_id" [delete: cascade]
+Ref "fk_orders_user":"users"."id" < "orders"."user_id" [delete: restrict]
 
 Ref "fk_product_color_variants_product":"products"."id" < "product_color_variants"."product_id" [delete: cascade]
 

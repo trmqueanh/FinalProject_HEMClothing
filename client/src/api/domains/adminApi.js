@@ -193,10 +193,6 @@ export const adminApi = {
     );
     return response.data;
   }, null),
-  deleteAdminAccount: withFallback(async accountId => {
-    const response = await apiClient.delete(`/admin/accounts/${accountId}`);
-    return response.data;
-  }, null),
   updateAdminAccountStatus: withFallback(async (accountId, status) => {
     const response = await apiClient.patch(`/admin/accounts/${accountId}/status`, { status });
     return response.data;

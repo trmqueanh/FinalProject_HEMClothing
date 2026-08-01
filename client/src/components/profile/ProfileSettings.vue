@@ -77,22 +77,6 @@ export default {
       type: Array,
       default: () => []
     },
-    hasSavedCard: {
-      type: Boolean,
-      default: false
-    },
-    savedCardLabel: {
-      type: String,
-      default: ''
-    },
-    savedCardBrandShort: {
-      type: String,
-      default: ''
-    },
-    isSaving: {
-      type: Boolean,
-      default: false
-    },
     displayDate: {
       type: Function,
       required: true
@@ -107,8 +91,7 @@ export default {
     'add-address',
     'edit-address',
     'set-address-default',
-    'delete-address',
-    'remove-card'
+    'delete-address'
   ]
 };
 </script>

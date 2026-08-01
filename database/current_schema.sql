@@ -981,15 +981,9 @@ CREATE TABLE public.user_profiles (
     phone character varying(30) DEFAULT ''::character varying NOT NULL,
     gender character varying(20) DEFAULT ''::character varying NOT NULL,
     birth_date date,
-    avatar_url text DEFAULT ''::text NOT NULL,
     payment_provider character varying(50) DEFAULT 'cod'::character varying NOT NULL,
-    card_holder_name character varying(120) DEFAULT ''::character varying NOT NULL,
-    card_last4 character varying(4) DEFAULT ''::character varying NOT NULL,
     created_at timestamp with time zone DEFAULT now(),
     updated_at timestamp with time zone DEFAULT now(),
-    card_brand character varying(30) DEFAULT ''::character varying NOT NULL,
-    CONSTRAINT user_profiles_card_brand_check CHECK (((card_brand)::text = ANY ((ARRAY['visa'::character varying, 'mastercard'::character varying, ''::character varying])::text[]))),
-    CONSTRAINT user_profiles_card_last4_check CHECK (((card_last4)::text ~ '^[0-9]{0,4}$'::text)),
     CONSTRAINT user_profiles_gender_check CHECK (((gender)::text = ANY ((ARRAY['male'::character varying, 'female'::character varying, 'other'::character varying, ''::character varying])::text[]))),
     CONSTRAINT user_profiles_payment_provider_check CHECK (((payment_provider)::text = ANY ((ARRAY['cod'::character varying, 'bank_transfer'::character varying])::text[])))
 );
@@ -2470,7 +2464,7 @@ ALTER TABLE ONLY public.orders
 --
 
 ALTER TABLE ONLY public.orders
-    ADD CONSTRAINT fk_orders_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+    ADD CONSTRAINT fk_orders_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE RESTRICT;
 
 
 --

@@ -20,6 +20,9 @@ CREATE TABLE IF NOT EXISTS return_requests (
     refund_account_holder VARCHAR(160),
     refund_account_status VARCHAR(30) NOT NULL DEFAULT 'not_provided',
     refund_account_submitted_at TIMESTAMP WITH TIME ZONE,
+    refund_account_verified_at TIMESTAMP WITH TIME ZONE,
+    refund_account_verified_by UUID,
+    refund_account_rejection_reason TEXT,
     requested_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     approved_at TIMESTAMP WITH TIME ZONE,
     rejected_at TIMESTAMP WITH TIME ZONE,
@@ -43,6 +46,7 @@ CREATE TABLE IF NOT EXISTS return_requests (
     CONSTRAINT fk_return_requests_approved_by FOREIGN KEY (approved_by) REFERENCES users(id) ON DELETE SET NULL,
     CONSTRAINT fk_return_requests_received_by FOREIGN KEY (received_by) REFERENCES users(id) ON DELETE SET NULL,
     CONSTRAINT fk_return_requests_inspected_by FOREIGN KEY (inspected_by) REFERENCES users(id) ON DELETE SET NULL,
+    CONSTRAINT return_requests_refund_account_verified_by_fkey FOREIGN KEY (refund_account_verified_by) REFERENCES users(id) ON DELETE SET NULL,
     CONSTRAINT return_requests_reason_check
         CHECK (reason IN ('wrong_size', 'not_as_expected', 'changed_mind', 'defective', 'other')),
 

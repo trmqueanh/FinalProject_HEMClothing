@@ -434,17 +434,13 @@ const reserveItems = async (db, {
       ),
       upsert_profile AS (
         INSERT INTO ${USER_PROFILE_TABLE} (
-          user_id, full_name, phone, payment_provider,
-          card_holder_name, card_last4, card_brand, created_at, updated_at
+          user_id, full_name, phone, payment_provider, created_at, updated_at
         )
-        VALUES ($3, $6, $7, $8, '', '', '', now(), now())
+        VALUES ($3, $6, $7, $8, now(), now())
         ON CONFLICT (user_id) DO UPDATE
         SET full_name = COALESCE(NULLIF(${USER_PROFILE_TABLE}.full_name, ''), EXCLUDED.full_name),
             phone = COALESCE(NULLIF(${USER_PROFILE_TABLE}.phone, ''), EXCLUDED.phone),
             payment_provider = EXCLUDED.payment_provider,
-            card_holder_name = '',
-            card_last4 = '',
-            card_brand = '',
             updated_at = now()
         RETURNING user_id
       )
@@ -564,17 +560,13 @@ const removePurchasedItemsAndSaveProfile = async (db, {
       ),
       upsert_profile AS (
         INSERT INTO ${USER_PROFILE_TABLE} (
-          user_id, full_name, phone, payment_provider,
-          card_holder_name, card_last4, card_brand, created_at, updated_at
+          user_id, full_name, phone, payment_provider, created_at, updated_at
         )
-        VALUES ($3, $4, $5, $6, '', '', '', now(), now())
+        VALUES ($3, $4, $5, $6, now(), now())
         ON CONFLICT (user_id) DO UPDATE
         SET full_name = COALESCE(NULLIF(${USER_PROFILE_TABLE}.full_name, ''), EXCLUDED.full_name),
             phone = COALESCE(NULLIF(${USER_PROFILE_TABLE}.phone, ''), EXCLUDED.phone),
             payment_provider = EXCLUDED.payment_provider,
-            card_holder_name = '',
-            card_last4 = '',
-            card_brand = '',
             updated_at = now()
         RETURNING user_id
       )

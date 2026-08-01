@@ -11,14 +11,12 @@ import {
 import { formatCurrency } from '../../utils/formatCurrency';
 import { prepareReturnEvidenceForSave } from '../../helpers/cloudinary';
 import {
-  CARD_NUMBER_MIN_DIGITS,
   DEFAULT_ADDRESS_FORM,
   DEFAULT_PROFILE_FORM,
   displayDate,
   formatAddress,
   formatCancelActor,
   formatCancelReason,
-  formatCardNumber,
   formatDate,
   formatFullShippingAddress,
   formatLabel,
@@ -28,11 +26,8 @@ import {
   formatShippingAddress,
   formatTimelineNote,
   formatTimelineRole,
-  getDigits,
-  isMaskedSavedCard,
   isOrderCanceled,
   isTimelineCancellation,
-  isValidCardHolderName,
   normalizeProfileSection,
   orderStatusBadgeClass,
   reviewVariantLabel
@@ -553,11 +548,8 @@ export const profileMethods = {
       this.form = {
         ...DEFAULT_PROFILE_FORM(),
         ...profile,
-        name: user.name || this.currentUser.name || '',
-        cardNumber: profile.cardLast4 ? `•••• •••• •••• ${profile.cardLast4}` : ''
+        name: user.name || this.currentUser.name || ''
       };
-      this.paymentTouched = {};
-      this.paymentErrors = {};
       this.addresses = Array.isArray(payload && payload.addresses)
         ? payload.addresses.map(address => this.normalizeAddressForForm(address))
         : [];
@@ -825,92 +817,18 @@ export const profileMethods = {
 
       this.pendingProfileConfirm = null;
     },
-    touchPaymentField(field) {
-      this.paymentTouched = {
-        ...this.paymentTouched,
-        [field]: true
-      };
-      this.validatePaymentField(field);
-    },
-    clearPaymentFieldError(field) {
-      if (!this.paymentErrors[field]) {
-        return;
-      }
-
-      this.paymentErrors = {
-        ...this.paymentErrors,
-        [field]: ''
-      };
-    },
-    paymentFieldError(field) {
-      return this.paymentTouched[field] && this.paymentErrors[field] ? this.paymentErrors[field] : '';
-    },
-    paymentFieldStatusClass(field) {
-      if (!this.paymentTouched[field]) {
-        return '';
-      }
-
-      return this.paymentErrors[field] ? 'profile-field--invalid' : 'profile-field--valid';
-    },
-    validatePaymentField(field) {
-      let message = '';
-
-      if (this.form.paymentProvider === 'card') {
-        if (field === 'cardHolderName' && !isValidCardHolderName(this.form.cardHolderName)) {
-          message = 'Card holder name must contain letters only.';
-        }
-
-        if (field === 'cardNumber') {
-          const cardDigits = getDigits(this.form.cardNumber);
-          const isSavedCard = isMaskedSavedCard(this.form.cardNumber) && this.form.cardLast4 && cardDigits === this.form.cardLast4;
-
-          if (!isSavedCard && cardDigits.length < CARD_NUMBER_MIN_DIGITS) {
-            message = 'Please enter a valid card number.';
-          }
-        }
-      }
-
-      this.paymentErrors = {
-        ...this.paymentErrors,
-        [field]: message
-      };
-
-      return !message;
-    },
-    validatePaymentForm() {
-      if (this.form.paymentProvider !== 'card') {
-        return true;
-      }
-
-      const fields = ['cardHolderName', 'cardNumber'];
-      this.paymentTouched = fields.reduce((state, field) => ({ ...state, [field]: true }), this.paymentTouched);
-
-      return fields.map(field => this.validatePaymentField(field)).every(Boolean);
-    },
     async saveProfile(section) {
-      if (section === 'payment' && !this.validatePaymentForm()) {
-        return;
-      }
-
       if (section === 'personal' && !isValidVietnamPhone(this.form.phone)) {
         this.flash('Enter a valid Vietnamese mobile number, for example 0912345678.', 'error');
         return;
       }
-
-      const cardDigits = getDigits(this.form.cardNumber);
-      const nextCardLast4 = isMaskedSavedCard(this.form.cardNumber) ? this.form.cardLast4 : cardDigits.slice(-4);
 
       this.isSaving = true;
       const profilePayload = { ...this.form };
       if (section === 'personal') {
         profilePayload.phone = normalizeVietnamPhone(this.form.phone);
       }
-      delete profilePayload.cardNumber;
-      const payload = await profileApi.updateProfile({
-        ...profilePayload,
-        cardHolderName: this.form.paymentProvider === 'card' ? this.form.cardHolderName : '',
-        cardLast4: this.form.paymentProvider === 'card' ? nextCardLast4 : ''
-      });
+      const payload = await profileApi.updateProfile(profilePayload);
       this.isSaving = false;
 
       if (!payload) {
@@ -920,43 +838,6 @@ export const profileMethods = {
       this.applyProfile(payload);
       this.setSection('settings');
       this.flash(`${this.formatLabel(section)} updated successfully.`, 'success');
-    },
-    handleProfileCardNumberInput(event) {
-      this.form.cardNumber = formatCardNumber(event && event.target ? event.target.value : this.form.cardNumber);
-      this.form.cardLast4 = getDigits(this.form.cardNumber).slice(-4);
-      this.clearPaymentFieldError('cardNumber');
-    },
-    openPaymentRemoveConfirm() {
-      this.isPaymentRemoveConfirmOpen = true;
-    },
-    closePaymentRemoveConfirm() {
-      if (this.isSaving) {
-        return;
-      }
-
-      this.isPaymentRemoveConfirmOpen = false;
-    },
-    async confirmRemoveSavedPayment() {
-      await this.removeSavedPayment();
-    },
-    async removeSavedPayment() {
-      this.isSaving = true;
-      const payload = await profileApi.updateProfile({
-        ...this.form,
-        paymentProvider: 'cod',
-        cardHolderName: '',
-        cardLast4: '',
-        cardBrand: ''
-      });
-      this.isSaving = false;
-
-      if (!payload) {
-        return;
-      }
-
-      this.isPaymentRemoveConfirmOpen = false;
-      this.applyProfile(payload);
-      this.flash('Saved payment method removed.', 'success');
     },
     async saveAddress() {
       const isEditingAddress = this.addressFormMode === 'edit';

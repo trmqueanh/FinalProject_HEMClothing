@@ -121,10 +121,6 @@
           :current-user="currentUser"
           :form="form"
           :addresses="addresses"
-          :has-saved-card="Boolean(hasSavedCard)"
-          :saved-card-label="savedCardLabel"
-          :saved-card-brand-short="savedCardBrandShort"
-          :is-saving="isSaving"
           :display-date="displayDate"
           :format-address="formatAddress"
           @open-editor="openEditor"
@@ -132,7 +128,6 @@
           @edit-address="startEditAddress"
           @set-address-default="setAddressDefault"
           @delete-address="openDeleteAddressConfirm"
-          @remove-card="openPaymentRemoveConfirm"
         />
 
             <ProfileInformationForm
@@ -179,13 +174,6 @@
         </transition>
       </main>
     </section>
-
-    <PaymentRemoveDialog
-      :open="isPaymentRemoveConfirmOpen"
-      :is-saving="isSaving"
-      @close="closePaymentRemoveConfirm"
-      @confirm="confirmRemoveSavedPayment"
-    />
 
     <ProfileConfirmDialog
       v-if="!pendingProfileConfirm || pendingProfileConfirm.type !== 'request-return'"
@@ -242,7 +230,6 @@ import OrderDetail from '../../components/order/OrderDetail.vue';
 import OrderReviewModal from '../../components/order/OrderReviewModal.vue';
 import OrdersList from '../../components/order/OrdersList.vue';
 import ReturnRequestDialog from '../../components/order/ReturnRequestDialog.vue';
-import PaymentRemoveDialog from '../../components/payment/PaymentRemoveDialog.vue';
 import ChangePasswordForm from '../../components/profile/ChangePasswordForm.vue';
 import CouponList from '../../components/profile/CouponList.vue';
 import ProfileInformationForm from '../../components/profile/ProfileInformationForm.vue';
@@ -256,7 +243,6 @@ import {
   DEFAULT_PROFILE_FORM,
   ORDER_STATUS_TABS,
   isOrderRequestTab,
-  detectCardBrand,
   resolveOrderStatusesForTab,
   resolveProfileRouteSection,
 } from '../../helpers/profile/profilePageHelpers';
@@ -274,7 +260,6 @@ export default {
     OrderReviewModal,
     OrdersList,
     ReturnRequestDialog,
-    PaymentRemoveDialog,
     ProfileInformationForm,
     ProfileSettings,
     ProfileSidebar,
@@ -330,11 +315,8 @@ export default {
       isLoadingCoupons: true,
       isSaving: false,
       isChangingPassword: false,
-      isPaymentRemoveConfirmOpen: false,
       pendingProfileConfirm: null,
       orderSearchTimer: null,
-      paymentTouched: {},
-      paymentErrors: {},
       passwordServerError: null,
       passwordSuccessMessage: ''
     };
@@ -397,37 +379,6 @@ export default {
     },
     defaultAddress() {
       return this.addresses.find(address => address.isDefault) || this.addresses[0] || null;
-    },
-    displayPaymentProvider() {
-      if (this.form.paymentProvider === 'cod') return 'Cash on Delivery';
-      if (this.form.paymentProvider === 'bank_transfer') return 'Bank Transfer (QR Code)';
-      return '';
-    },
-    hasSavedCard() {
-      return false;
-    },
-    savedCardBrandLabel() {
-      if (this.form.cardBrand === 'visa') return 'Visa';
-      if (this.form.cardBrand === 'mastercard') return 'Mastercard';
-      return 'Card';
-    },
-    savedCardBrandShort() {
-      if (this.form.cardBrand === 'visa') return 'VISA';
-      if (this.form.cardBrand === 'mastercard') return 'MC';
-      return 'CARD';
-    },
-    savedCardLabel() {
-      return ` •••• •••• •••• ${this.form.cardLast4}`;
-    },
-    profileCardBrand() {
-      return detectCardBrand(this.form.cardNumber);
-    },
-    profileSavedCardLabel() {
-      if (!this.form.cardLast4) {
-        return '';
-      }
-
-      return `Saved card ending in ${this.form.cardLast4}`;
     },
     cityOptions() {
       if (!this.addressForm.city || this.locations.some(location => location.name === this.addressForm.city)) {
@@ -514,15 +465,6 @@ export default {
     'addressForm.district'(value, previousValue) {
       if (previousValue && value !== previousValue) {
         this.addressForm.ward = '';
-      }
-    },
-    'form.paymentProvider'(value) {
-      if (value === 'cod') {
-        this.form.cardHolderName = '';
-        this.form.cardNumber = '';
-        this.form.cardLast4 = '';
-        this.paymentTouched = {};
-        this.paymentErrors = {};
       }
     }
   },

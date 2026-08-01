@@ -127,25 +127,17 @@ const upsertProfile = async (db, userId, payload) => {
         phone,
         gender,
         birth_date,
-        avatar_url,
         payment_provider,
-        card_holder_name,
-        card_last4,
-        card_brand,
         created_at,
         updated_at
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, '', '', '', now(), now())
+      VALUES ($1, $2, $3, $4, $5, $6, now(), now())
       ON CONFLICT (user_id) DO UPDATE
       SET full_name = EXCLUDED.full_name,
           phone = EXCLUDED.phone,
           gender = EXCLUDED.gender,
           birth_date = EXCLUDED.birth_date,
-          avatar_url = EXCLUDED.avatar_url,
           payment_provider = EXCLUDED.payment_provider,
-          card_holder_name = EXCLUDED.card_holder_name,
-          card_last4 = EXCLUDED.card_last4,
-          card_brand = EXCLUDED.card_brand,
           updated_at = now()
       RETURNING
         id,
@@ -154,11 +146,7 @@ const upsertProfile = async (db, userId, payload) => {
         phone,
         gender,
         birth_date,
-        avatar_url,
         payment_provider,
-        card_holder_name,
-        card_last4,
-        card_brand,
         created_at,
         updated_at
     `,
@@ -168,7 +156,6 @@ const upsertProfile = async (db, userId, payload) => {
       payload.phone,
       payload.gender,
       payload.birthDate,
-      payload.avatarUrl,
       payload.paymentProvider
     ]
   );
@@ -270,11 +257,7 @@ const findProfileByUserId = async (db, userId) => {
         phone,
         gender,
         birth_date,
-        avatar_url,
         payment_provider,
-        card_holder_name,
-        card_last4,
-        card_brand,
         created_at,
         updated_at
       FROM ${USER_PROFILE_TABLE}
@@ -529,15 +512,6 @@ const findAdminCustomerOrders = async (db, userId, pagination = {}) => {
   };
 };
 
-const deleteById = (db, userId) => db.query(
-  `
-    DELETE FROM ${USER_TABLE}
-    WHERE id = $1
-    RETURNING id, email, role, status
-  `,
-  [userId]
-);
-
 const updateStatus = (db, userId, status) => db.query(
   `
     UPDATE ${USER_TABLE}
@@ -551,7 +525,6 @@ const updateStatus = (db, userId, status) => db.query(
 
 module.exports = {
   createPendingMember,
-  deleteById,
   deleteExpiredPendingByEmail,
   deletePendingById,
   findAuthUserByIdentity,

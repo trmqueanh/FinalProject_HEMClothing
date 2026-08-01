@@ -225,23 +225,6 @@ formatInventoryQuantityChange(entry) {
 
       return `${sign}${quantity}`;
     },
-requestDeleteAccount(account) {
-      if (!account || !account.id) {
-        return;
-      }
-
-      this.openConfirm({
-        title: 'Delete account?',
-        message: `${account.email || account.name} will be permanently removed. Accounts with order or transaction history cannot be deleted; deactivate them instead.`,
-        confirmLabel: 'Delete account',
-        onConfirm: async () => {
-          const response = await adminApi.deleteAdminAccount(account.id);
-          if (!response) return;
-          await Promise.all([this.loadAccounts(), this.loadDashboard()]);
-          flash(response.message || 'Account deleted successfully.', 'success');
-        }
-      });
-    },
 requestToggleAccountStatus(account) {
       if (!account || !account.id) {
         return;

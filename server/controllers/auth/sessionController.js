@@ -209,11 +209,7 @@ controller.register = async (req, res) => {
         phone: '',
         gender: '',
         birthDate,
-        avatarUrl: '',
-        paymentProvider: 'cod',
-        cardHolderName: '',
-        cardLast4: '',
-        cardBrand: ''
+        paymentProvider: 'cod'
       }
     );
 
