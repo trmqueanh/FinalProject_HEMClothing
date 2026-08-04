@@ -3,7 +3,6 @@ import { cartState } from '../helpers/cart/cartState';
 import { cartApi } from '../services/cartApi';
 import { authStore } from './authStore';
 
-let optimisticCartLineSequence = 0;
 const buyAgainRequests = new Map();
 
 const matchesCartSelection = (item, { product, size, color, colorVariantId }) =>
@@ -14,23 +13,6 @@ const matchesCartSelection = (item, { product, size, color, colorVariantId }) =>
       ? String(item.colorVariantId || '') === String(colorVariantId)
       : String(item.color || '') === String(color || 'Default')
   );
-
-const createOptimisticItem = ({ product, quantity, size, color, colorVariantId }) => {
-  optimisticCartLineSequence += 1;
-  const lineId = `optimistic-cart-line-${optimisticCartLineSequence}`;
-
-  return normalizeCartItems([{
-    ...product,
-    lineId,
-    cartItemId: lineId,
-    productId: product.id,
-    quantity,
-    size,
-    color,
-    colorName: color,
-    colorVariantId
-  }])[0];
-};
 
 export const cartStore = {
   getItems() {
@@ -102,32 +84,6 @@ export const cartStore = {
 
     cartState.syncUserScope();
     const previousPayload = cartState.clonePayload();
-    const previousItems = normalizeCartItems(previousPayload.items);
-    const existingItem = previousItems.find(item => matchesCartSelection(item, {
-      product,
-      size,
-      color,
-      colorVariantId
-    }));
-    const optimisticItem = existingItem
-      ? {
-          ...existingItem,
-          quantity: Number(existingItem.quantity || 0) + Number(quantity || 0)
-        }
-      : createOptimisticItem({ product, quantity, size, color, colorVariantId });
-    const optimisticItems = existingItem
-      ? previousItems.map(item => item === existingItem ? optimisticItem : item)
-      : [optimisticItem, ...previousItems];
-
-    cartState.applyPayload({
-      id: previousPayload.id,
-      items: optimisticItems
-    }, {
-      added: true,
-      addedItem: optimisticItem,
-      optimistic: true,
-      silentNotice: true
-    });
 
     const payload = await cartApi.addCartItem({
       productId: product.id,

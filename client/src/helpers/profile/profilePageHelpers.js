@@ -198,10 +198,22 @@ export const formatTimelineNote = event => {
 };
 
 export const formatTimelineRole = value => {
-  const role = String(value || '').toLowerCase();
+  const event = value && typeof value === 'object' ? value : null;
+  const role = String(event ? event.changedByRole : value || '').toLowerCase();
+  const status = String(event && event.newStatus || '').toLowerCase();
+  const note = String(event && event.note || '').trim().toLowerCase().replace(/\.$/, '');
+
+  if (
+    status === 'completed' &&
+    role === 'user' &&
+    note !== 'customer confirmed received'
+  ) {
+    return 'System action';
+  }
 
   if (role === 'admin') return 'Admin action';
   if (role === 'user') return 'Customer action';
+  if (role === 'system') return 'System action';
   return 'Order update';
 };
 

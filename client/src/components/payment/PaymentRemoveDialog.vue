@@ -1,12 +1,11 @@
 <template>
   <transition :name="transitionName">
-    <div v-if="open" :class="backdropClass" @click.self="$emit('close')">
+    <div v-if="open" :class="backdropClass" @click.self="requestClose">
       <section :class="dialogClass" role="dialog" aria-modal="true" :aria-labelledby="titleId">
-        <p class="eyebrow">{{ eyebrow }}</p>
         <h2 :id="titleId">{{ title }}</h2>
         <p>{{ message }}</p>
         <div :class="actionsClass">
-          <button type="button" :class="ghostClass" :disabled="isSaving" @click="$emit('close')">{{ cancelLabel }}</button>
+          <button type="button" :class="ghostClass" :disabled="isSaving" @click="requestClose">{{ cancelLabel }}</button>
           <button
             type="button"
             :class="[dangerClass, { 'is-danger': dangerTone }]"
@@ -108,6 +107,12 @@ export default {
     confirmLabel() {
       if (this.confirmText) return this.confirmText;
       return this.isSaving ? 'Removing...' : 'Remove card';
+    }
+  },
+  methods: {
+    requestClose() {
+      if (this.isSaving) return;
+      this.$emit('close');
     }
   }
 };
@@ -288,9 +293,16 @@ export default {
   background: #b42318;
 }
 
-.checkout-confirm-dialog__ghost:hover,
-.checkout-confirm-dialog__danger:hover {
+.checkout-confirm-dialog__ghost:hover:not(:disabled),
+.checkout-confirm-dialog__danger:hover:not(:disabled) {
   transform: translateY(-1px);
+}
+
+.checkout-confirm-dialog__ghost:disabled,
+.checkout-confirm-dialog__danger:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  transform: none;
 }
 
 .checkout-confirm-enter-active,

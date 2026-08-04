@@ -1,5 +1,6 @@
 const {
   ACTIVE_RETURN_STATUSES,
+  OPEN_RETURN_STATUSES,
   ORDER_STATUS,
   PAYMENT_METHOD,
   PAYMENT_STATUS,
@@ -16,6 +17,7 @@ const PRODUCT_IMAGE_TABLE = 'product_images';
 const PRODUCT_INVENTORY_TABLE = 'product_inventory';
 const PRODUCT_TABLE = 'products';
 const REFUND_REQUEST_TABLE = 'refunds';
+const RETURN_ITEM_TABLE = 'return_items';
 const RETURN_REQUEST_TABLE = 'return_requests';
 const USERS_TABLE = 'users';
 
@@ -229,16 +231,15 @@ const listCustomerOrders = async (db, options) => {
         )::numeric AS total_spent
       FROM ${ORDER_TABLE} o
       WHERE o.user_id = $1
-        AND o.order_status IN ($2, $3)
+        AND o.order_status = $2
         AND (
-          o.payment_method = $4
-          OR o.payment_status IN ($5, $6, $7, $8)
+          o.payment_method = $3
+          OR o.payment_status IN ($4, $5, $6, $7)
         )
         AND GREATEST(o.total_amount - COALESCE(o.refund_amount, 0), 0) > 0
     `,
     [
       options.userId,
-      ORDER_STATUS.DELIVERED,
       ORDER_STATUS.COMPLETED,
       PAYMENT_METHOD.COD,
       PAYMENT_STATUS.PAID,
@@ -505,6 +506,14 @@ const listItemRows = async (db, orderIds) => {
         COALESCE((to_jsonb(oi)->>'net_line_total')::numeric, oi.product_price * oi.quantity) AS net_line_total,
         COALESCE((to_jsonb(oi)->>'refunded_quantity')::int, 0) AS refunded_quantity,
         COALESCE((to_jsonb(oi)->>'refunded_amount')::numeric, 0) AS refunded_amount,
+        GREATEST(
+          oi.quantity - COALESCE((
+            SELECT SUM(return_item.requested_quantity)
+            FROM ${RETURN_ITEM_TABLE} return_item
+            WHERE return_item.order_item_id = oi.id
+          ), 0),
+          0
+        )::int AS returnable_quantity,
         oi.size_label,
         oi.color_name,
         oi.product_image,
@@ -618,6 +627,14 @@ const listItemSummaryRows = async (db, orderIds) => {
         COALESCE(oi.net_line_total, oi.product_price * oi.quantity) AS net_line_total,
         COALESCE(oi.refunded_quantity, 0) AS refunded_quantity,
         COALESCE(oi.refunded_amount, 0) AS refunded_amount,
+        GREATEST(
+          oi.quantity - COALESCE((
+            SELECT SUM(return_item.requested_quantity)
+            FROM ${RETURN_ITEM_TABLE} return_item
+            WHERE return_item.order_item_id = oi.id
+          ), 0),
+          0
+        )::int AS returnable_quantity,
         oi.size_label,
         oi.color_name,
         oi.product_image,
@@ -792,7 +809,7 @@ const cancelOrder = async (db, {
               THEN '${PAYMENT_STATUS.REFUND_PENDING}'
             WHEN payment_method = '${PAYMENT_METHOD.BANK_TRANSFER}'
               AND payment_status = '${PAYMENT_STATUS.UNDER_REVIEW}'
-              THEN '${PAYMENT_STATUS.EXPIRED}'
+              THEN '${PAYMENT_STATUS.REJECTED}'
             ELSE payment_status
           END,
           payment_reviewed_at = CASE
@@ -958,7 +975,7 @@ const listAutoCompleteCandidates = async (db, limit) => {
       ORDER BY o.delivered_at ASC
       LIMIT $1::int
     `,
-    [limit, ACTIVE_RETURN_STATUSES.filter(status => status !== RETURN_STATUS.COMPLETED)]
+    [limit, OPEN_RETURN_STATUSES]
   );
   return result.rows;
 };
@@ -981,7 +998,7 @@ const findAutoCompleteCandidateForUpdate = async (db, orderId) => {
         )
       FOR UPDATE OF o
     `,
-    [orderId, ACTIVE_RETURN_STATUSES.filter(status => status !== RETURN_STATUS.COMPLETED)]
+    [orderId, OPEN_RETURN_STATUSES]
   );
   return result.rows[0] || null;
 };
@@ -1014,7 +1031,8 @@ const listBankTransferPayments = async (db, paymentStatus = '', searchTerm = '')
           WHEN '${PAYMENT_STATUS.UNDER_REVIEW}' THEN 0
           WHEN '${PAYMENT_STATUS.PENDING_PAYMENT}' THEN 1
           WHEN '${PAYMENT_STATUS.EXPIRED}' THEN 2
-          ELSE 3
+          WHEN '${PAYMENT_STATUS.REJECTED}' THEN 3
+          ELSE 4
         END,
         o.updated_at DESC,
         o.created_at DESC

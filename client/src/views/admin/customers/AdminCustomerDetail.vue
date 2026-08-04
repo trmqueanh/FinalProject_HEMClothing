@@ -303,7 +303,9 @@ export default {
       statistics: {
         ...EMPTY_STATISTICS(),
         ...cachedDetail && cachedDetail.statistics
-      }
+      },
+      customerCommerceSyncTimer: null,
+      customerCommerceSyncInFlight: false
     };
   },
   computed: {
@@ -338,8 +340,17 @@ export default {
     );
     this.loadCustomer({
       background: Boolean(this.customer),
-      showRefreshing: !(cachedDetail && cachedDetail.customer)
+      showRefreshing: !(cachedDetail && cachedDetail.customer),
+      force: Boolean(cachedDetail && cachedDetail.customer)
     });
+    window.addEventListener('focus', this.handleCustomerCommerceFocus);
+    document.addEventListener('visibilitychange', this.handleCustomerCommerceVisibilityChange);
+    this.startCustomerCommerceSync();
+  },
+  beforeUnmount() {
+    this.stopCustomerCommerceSync();
+    window.removeEventListener('focus', this.handleCustomerCommerceFocus);
+    document.removeEventListener('visibilitychange', this.handleCustomerCommerceVisibilityChange);
   },
   methods: {
     formatCurrency,
@@ -375,7 +386,7 @@ export default {
       const payload = await fetchAdminCustomerDetail(customerId, {
         page,
         limit: this.pagination.limit
-      });
+      }, { force: Boolean(options.force) });
 
       if (!payload || !payload.customer) {
         if (!pageOnly) {
@@ -394,6 +405,44 @@ export default {
       this.isPageLoading = false;
       await this.$nextTick();
       this.scrollToFocusedOrder();
+    },
+    async refreshCustomerCommerceSurface() {
+      if (
+        this.customerCommerceSyncInFlight ||
+        this.isLoading ||
+        this.isPageLoading ||
+        (typeof document !== 'undefined' && document.hidden)
+      ) return;
+
+      this.customerCommerceSyncInFlight = true;
+      try {
+        await this.loadCustomer({
+          background: true,
+          showRefreshing: false,
+          force: true
+        });
+      } finally {
+        this.customerCommerceSyncInFlight = false;
+      }
+    },
+    handleCustomerCommerceFocus() {
+      this.refreshCustomerCommerceSurface();
+    },
+    handleCustomerCommerceVisibilityChange() {
+      if (typeof document !== 'undefined' && !document.hidden) {
+        this.refreshCustomerCommerceSurface();
+      }
+    },
+    startCustomerCommerceSync() {
+      this.stopCustomerCommerceSync();
+      this.customerCommerceSyncTimer = window.setInterval(
+        () => this.refreshCustomerCommerceSurface(),
+        15000
+      );
+    },
+    stopCustomerCommerceSync() {
+      if (this.customerCommerceSyncTimer) window.clearInterval(this.customerCommerceSyncTimer);
+      this.customerCommerceSyncTimer = null;
     },
     applyCustomerPayload(payload) {
       this.customer = {

@@ -19,8 +19,10 @@
       :continue-shopping-link="continueShoppingLink"
       :format-currency="formatCurrency"
       :is-marking-payment-paid="isMarkingPaymentPaid"
+      :is-cancelling-payment="isCancellingPayment"
       @activate-bank-transfer="activateBankTransferPayment"
       @mark-bank-transfer-paid="markBankTransferPaid"
+      @cancel-bank-transfer="openPaymentCancelConfirm"
       @expire-bank-transfer="expireBankTransferPayment"
       @refresh-bank-transfer="refreshBankTransferStatus"
     />
@@ -125,6 +127,20 @@
       @close="closePaymentLeaveConfirm"
       @confirm="confirmPaymentPageLeave"
     />
+
+    <PaymentRemoveDialog
+      variant="checkout"
+      :open="isPaymentCancelConfirmOpen"
+      :is-saving="isCancellingPayment"
+      eyebrow-text="QR payment"
+      title-text="Cancel this payment?"
+      message-text="Cancelling this payment will also cancel your order. This action cannot be undone."
+      cancel-text="Go back"
+      :confirm-text="isCancellingPayment ? 'Cancelling...' : 'Cancel Payment'"
+      danger-tone
+      @close="closePaymentCancelConfirm"
+      @confirm="confirmPaymentCancellation"
+    />
   </div>
 </template>
 
@@ -175,7 +191,9 @@ export default {
       selectedPaymentOption: '',
       isSubmitting: false,
       isMarkingPaymentPaid: false,
+      isCancellingPayment: false,
       isActivatingBankTransfer: false,
+      isPaymentCancelConfirmOpen: false,
       isPaymentLeaveConfirmOpen: false,
       pendingPaymentLeavePath: '',
       allowPaymentRouteLeave: false,

@@ -19,6 +19,8 @@
         <option value="payment_under_review">Under review</option>
         <option value="pending_payment">Pending payment</option>
         <option value="payment_expired">Payment expired</option>
+        <option value="payment_cancelled">Payment cancelled</option>
+        <option value="payment_rejected">Payment rejected</option>
       </select>
     </div>
 
@@ -64,9 +66,6 @@
 
                 <template v-else>
                   <div class="payment-review-controls__actions">
-                    <button type="button" class="table-action" @click="viewOrderDetail(payment)">
-                      View Order Detail
-                    </button>
                     <button type="button" class="table-action table-action--approve" @click="confirmPayment(payment)">
                       Confirm
                     </button>
@@ -175,7 +174,8 @@ export default {
       if (this.isPaymentProcessing(payment)) return;
       this.setPaymentProcessing(payment, 'confirm');
       try {
-        await this.confirmBankTransferPayment(payment);
+        const updated = await this.confirmBankTransferPayment(payment);
+        if (updated) await this.viewOrderDetail(updated);
       } finally {
         this.setPaymentProcessing(payment);
       }
@@ -187,7 +187,10 @@ export default {
       this.setPaymentProcessing(payment, 'reject');
       try {
         const updated = await this.rejectBankTransferPayment(payment, { reason });
-        if (updated) this.closePaymentAction(payment);
+        if (updated) {
+          this.closePaymentAction(payment);
+          await this.viewOrderDetail(updated);
+        }
       } finally {
         this.setPaymentProcessing(payment);
       }

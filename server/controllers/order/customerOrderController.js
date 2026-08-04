@@ -13,9 +13,10 @@ module.exports = ({
   fetchOrderTimeline,
   fetchRefundRequestByOrderId,
   fetchRefundRequestsByOrderIds,
-  fetchReturnRequestByOrderId,
   fetchReturnRequestsByOrderIds,
+  fetchReturnPayloadsByOrderId,
   getDb,
+  hasOpenReturnForOrder,
   isValidUuid,
   normalizeOrderStatusValue,
   notifyOrderStatusChanged,
@@ -103,18 +104,23 @@ module.exports = ({
       });
       if (!orderRow) return res.status(404).json({ message: 'Order not found.' });
 
-      const [items, timeline, returnRequest, refundRequest] = await Promise.all([
+      const [items, timeline, returnRequests, refundRequest, hasActiveReturn] = await Promise.all([
         fetchOrderItemsByOrderId(db, orderId),
         fetchOrderTimeline(db, orderId),
-        fetchReturnRequestByOrderId(db, orderId),
-        fetchRefundRequestByOrderId(db, orderId)
+        fetchReturnPayloadsByOrderId(db, orderId, req.authUser.id),
+        fetchRefundRequestByOrderId(db, orderId),
+        hasOpenReturnForOrder(db, orderId)
       ]);
+      const returnRequest = returnRequests.length
+        ? { ...returnRequests[0], hasActiveReturn }
+        : null;
       return res.json({
         order: serializeOrderRow(orderRow),
         bankTransfer: buildBankTransferPaymentDetails(orderRow),
         items,
         timeline,
         returnRequest,
+        returnRequests,
         refundRequest
       });
     } catch (error) {
@@ -404,6 +410,12 @@ module.exports = ({
         if (normalizeOrderStatusValue(order.order_status) !== ORDER_STATUS.DELIVERED) {
           await client.query('ROLLBACK');
           return res.status(400).json({ message: 'You can confirm receipt only after the order is delivered.' });
+        }
+        if (await hasOpenReturnForOrder(client, orderId)) {
+          await client.query('ROLLBACK');
+          return res.status(409).json({
+            message: 'This order cannot be confirmed while a return is in progress.'
+          });
         }
         if (!isDeliveryWindowOpen(order)) {
           await client.query('ROLLBACK');

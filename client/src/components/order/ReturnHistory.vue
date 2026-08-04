@@ -32,7 +32,7 @@
       </div>
       <p v-if="request.rejectionReason" class="return-history__rejection">{{ request.rejectionReason }}</p>
       <p
-        v-if="['awaiting_return', 'received', 'inspecting', 'inspection_approved', 'refund_pending'].includes(request.returnStatus) && (!request.refundAccount || ['not_provided', 'rejected'].includes(request.refundAccount.status))"
+        v-if="canProvideRefundAccount(request) && (!request.refundAccount || ['not_provided', 'rejected'].includes(request.refundAccount.status))"
         class="return-history__account-action"
       >Refund account information is required.</p>
       <div class="return-history__links">
@@ -56,7 +56,13 @@ export default {
     formatCurrency: { type: Function, required: true }
   },
   methods: {
-    productLink: orderItemProductLink
+    productLink: orderItemProductLink,
+    canProvideRefundAccount(request) {
+      return String(request && request.returnStatus || '').toLowerCase() === 'refund_pending' &&
+        (request && request.refunds || []).some(refund =>
+          ['pending', 'failed'].includes(String(refund && refund.status || '').toLowerCase())
+        );
+    }
   }
 };
 </script>

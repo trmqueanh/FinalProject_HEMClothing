@@ -61,7 +61,6 @@
           <section class="admin-confirm-dialog admin-confirm-dialog--action" role="dialog" aria-modal="true" aria-labelledby="admin-action-confirm-title">
             <p class="admin-panel__eyebrow">Confirm Action</p>
             <h2 id="admin-action-confirm-title">{{ pendingActionConfirm.title }}</h2>
-            <p>{{ pendingActionConfirm.message }}</p>
             <label
               v-for="field in pendingActionConfirm.fieldConfig || []"
               :key="field.key"

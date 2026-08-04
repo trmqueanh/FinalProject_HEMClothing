@@ -211,7 +211,7 @@
             <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M2 6.5l2.5 2.5 5.5-5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            You’re eligible for free shipping
+            You are eligible for free shipping
           </template>
         </span>
       </div>
@@ -266,7 +266,7 @@
           <path d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13z" stroke="currentColor" stroke-width="1.2"/>
           <path d="M5.5 8.5l2 2 3-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        30-day returns
+        7-day returns
       </div>
       <div class="cart-summary__trust-item">
         <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">

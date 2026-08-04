@@ -185,14 +185,15 @@ async loadAdminOrderDetail(orderId) {
       if (cached && cached.order) {
         this.selectedAdminOrderDetail = {
           ...cached,
-          returnRequest: this.normalizeAdminReturnRequest(cached.returnRequest || null)
+          returnRequest: this.normalizeAdminReturnRequest(cached.returnRequest || null),
+          returnRequests: (cached.returnRequests || []).map(request => this.normalizeAdminReturnRequest(request))
         };
       } else {
         this.selectedAdminOrderDetail = null;
       }
       this.isLoadingAdminOrderDetail = !cached;
       this.updateAdminTitle();
-      const response = await fetchAdminOrderDetail(normalizedOrderId);
+      const response = await fetchAdminOrderDetail(normalizedOrderId, { force: Boolean(cached) });
 
       if (!response || !response.order) {
         this.isLoadingAdminOrderDetail = false;
@@ -218,6 +219,7 @@ async loadAdminOrderDetail(orderId) {
         returnRequest: this.normalizeAdminReturnRequest(returnResponse && returnResponse.returnRequest
           ? returnResponse.returnRequest
           : (response.returnRequest || null)),
+        returnRequests: (response.returnRequests || []).map(request => this.normalizeAdminReturnRequest(request)),
         refundRequest: response.refundRequest || null
       };
       primeAdminOrderDetail(detail);
@@ -279,6 +281,7 @@ async refreshSelectedAdminOrderDetail(orderId) {
         returnRequest: this.normalizeAdminReturnRequest(returnResponse && returnResponse.returnRequest
           ? returnResponse.returnRequest
           : (response.returnRequest || null)),
+        returnRequests: (response.returnRequests || []).map(request => this.normalizeAdminReturnRequest(request)),
         refundRequest: response.refundRequest || null
       };
       primeAdminOrderDetail(detail);
@@ -338,6 +341,7 @@ requestCompleteRefund(refundRequest) {
           const response = await adminApi.completeAdminRefund(refundRequest.id, fields);
           if (!response || !response.refund) return;
           this.syncSelectedAdminOrderDetailRefundRequest(response.refund);
+          if (response.order) this.syncSelectedAdminOrderDetailOrder(response.order);
           this.loadRequests();
           this.loadOrders();
           this.loadDashboard();
@@ -452,7 +456,7 @@ requestRejectReturnRequest(returnRequest) {
 
       this.openConfirm({
         title: 'Reject return?',
-        message: 'The order and inventory will stay unchanged.',
+        message: 'The return will be closed. A delivered order will be completed and its remaining reserved inventory finalized.',
         confirmLabel: 'Reject return',
         fields: { rejectionReason: '' },
         fieldConfig: [{ key: 'rejectionReason', label: 'Rejection reason', multiline: true, required: true }],
@@ -460,7 +464,8 @@ requestRejectReturnRequest(returnRequest) {
           const response = await adminApi.rejectAdminReturnRequest(returnRequest.id, fields);
           if (!response || !response.returnRequest) return;
           this.syncSelectedAdminOrderDetailReturnRequest(response.returnRequest);
-          await this.loadRequests();
+          if (response.order) this.syncSelectedAdminOrderDetailOrder(response.order);
+          await Promise.all([this.loadRequests(), this.loadOrders(), this.loadDashboard()]);
           flash('Return request rejected.', 'success');
         }
       });
@@ -533,6 +538,7 @@ requestInspectReturn(returnRequest) {
           if (!response || !response.returnRequest) return;
           this.syncSelectedAdminOrderDetailReturnRequest(response.returnRequest);
           if (response.refund) this.syncSelectedAdminOrderDetailRefundRequest(response.refund);
+          if (response.order) this.syncSelectedAdminOrderDetailOrder(response.order);
           await Promise.all([this.loadRequests(), this.loadOrders(), this.loadDashboard()]);
           flash(response.refund ? 'Inspection accepted; refund created.' : 'Inspection rejected; no refund created.', 'success');
         }

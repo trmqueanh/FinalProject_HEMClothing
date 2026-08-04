@@ -44,8 +44,6 @@ const { PAYMENT_METHODS } = require('../constants/domainConstants');
 // shared account/profile helpers stay here; route handlers are grouped in controllers/auth/* for easier debugging.
 const PAYMENT_PROVIDERS = PAYMENT_METHODS;
 const PROFILE_GENDERS = new Set(['male', 'female', 'other', '']);
-const ACTIVE_VOUCHER_CACHE_TTL_MS = 15000;
-let activeVoucherCache = null;
 
 const getDb = req => req.app.locals.db;
 
@@ -276,38 +274,10 @@ const normalizeAddressPayload = body => {
 };
 
 const readActiveVoucherPayload = async db => {
-  const now = Date.now();
-
-  if (activeVoucherCache && activeVoucherCache.payload && activeVoucherCache.expiresAt > now) {
-    return activeVoucherCache.payload;
-  }
-
-  if (activeVoucherCache && activeVoucherCache.promise) {
-    return activeVoucherCache.promise;
-  }
-
-  const promise = voucherModel.listMemberCatalog(db).then(result => {
-    const payload = {
-      items: result.rows.map(row => serializePublicVoucher(row))
-    };
-
-    activeVoucherCache = {
-      payload,
-      expiresAt: Date.now() + ACTIVE_VOUCHER_CACHE_TTL_MS
-    };
-
-    return payload;
-  }).catch(error => {
-    activeVoucherCache = null;
-    throw error;
-  });
-
-  activeVoucherCache = {
-    promise,
-    expiresAt: now + ACTIVE_VOUCHER_CACHE_TTL_MS
+  const result = await voucherModel.listMemberCatalog(db);
+  return {
+    items: result.rows.map(row => serializePublicVoucher(row))
   };
-
-  return promise;
 };
 
 const buildProfileResponse = async (db, user) => {

@@ -276,7 +276,7 @@ Table "orders" {
     `((order_status)::text = ANY ((ARRAY['pending'::character varying, 'confirmed'::character varying, 'processing'::character varying, 'shipping'::character varying, 'delivery_failed'::character varying, 'delivered'::character varying, 'completed'::character varying, 'cancelled'::character varying])::text[]))` [name: 'orders_order_status_check']
     `((payment_method)::text = ANY ((ARRAY['cod'::character varying, 'bank_transfer'::character varying])::text[]))` [name: 'orders_payment_method_check']
     `((payment_received_amount IS NULL) OR (payment_received_amount >= (0)::numeric))` [name: 'orders_payment_received_amount_check']
-    `((payment_status)::text = ANY ((ARRAY['pending_payment'::character varying, 'payment_under_review'::character varying, 'paid'::character varying, 'payment_expired'::character varying, 'refund_pending'::character varying, 'partially_refunded'::character varying, 'refunded'::character varying])::text[]))` [name: 'orders_payment_status_check']
+    `((payment_status)::text = ANY ((ARRAY['pending_payment'::character varying, 'payment_under_review'::character varying, 'paid'::character varying, 'payment_expired'::character varying, 'payment_cancelled'::character varying, 'payment_rejected'::character varying, 'refund_pending'::character varying, 'partially_refunded'::character varying, 'refunded'::character varying])::text[]))` [name: 'orders_payment_status_check']
     `((refund_amount IS NULL) OR (refund_amount >= (0)::numeric))` [name: 'orders_refund_amount_check']
     `(((refund_method)::text = 'manual'::text) OR (refund_method IS NULL))` [name: 'orders_refund_method_check']
     `(shipping_fee >= (0)::numeric)` [name: 'orders_shipping_fee_check']

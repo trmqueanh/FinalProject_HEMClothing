@@ -645,6 +645,51 @@ const notifyRefundCompleted = async (req, db, order, refund = null) => {
   );
 };
 
+const notifyRefundFailed = async (req, db, order, refund) => {
+  if (!refund || !getOrderCustomerEmail(order)) {
+    return null;
+  }
+
+  const items = refund.return_request_id
+    ? await loadReturnEmailItems(db, refund.return_request_id)
+    : await loadOrderEmailItems(db, getOrderId(order));
+  const failureReason = String(refund.failure_reason || '').trim();
+
+  return sendUserEmail(
+    req,
+    db,
+    createEventKey(
+      'refund',
+      'failed',
+      String(refund.id || getOrderId(order)),
+      refund.failed_at || refund.updated_at || ''
+    ),
+    baseEmail(
+      req,
+      getOrderCustomerEmail(order),
+      `Refund could not be completed for HEM order ${getOrderShortId(order)}`,
+      [
+        `Hello ${getOrderCustomerName(order)},`,
+        'HEM could not complete your refund.',
+        `Order: ${getOrderShortId(order)}`,
+        failureReason ? `Reason: ${failureReason}` : '',
+        'Please review your refund account in HEM or contact Customer Care if the details are already correct.'
+      ],
+      {
+        ctaLabel: 'Review refund details',
+        preheader: `Action may be required for refund ${String(refund.refund_code || '')}.`,
+        url: orderLink(req, order),
+        orderDetails: buildDetailedOrderEmailData(req, order, items)
+      }
+    ),
+    {
+      orderId: getOrderId(order),
+      refundId: refund.id,
+      emailType: 'refund_failed'
+    }
+  );
+};
+
 const loadReturnContext = async (db, returnRequestId) => {
   const result = await db.query(
     `
@@ -719,10 +764,9 @@ const RETURN_STATUS_COPY = {
       'Your selected return quantities were approved.',
       `Order: #${getReturnOrderId(request).slice(0, 8).toUpperCase()}`,
       'Please ship only the approved products back to HEM.',
-      'Action required: provide your refund bank account in HEM. A refund is created only if the returned products pass inspection.',
-      'For your security, do not send bank account details by replying to this email.'
+      'HEM will inspect the returned products after they arrive. If accepted, a refund will be created and you can then provide your bank account in HEM.'
     ],
-    ctaLabel: 'Provide refund account'
+    ctaLabel: 'View return'
   },
   rejected: {
     subject: request => `Return update for HEM order #${getReturnOrderId(request).slice(0, 8).toUpperCase()}`,
@@ -791,6 +835,13 @@ const RETURN_STATUS_COPY = {
     ctaLabel: 'View order'
   }
 };
+
+const USER_RETURN_STATUS_EMAILS = new Set([
+  'approved',
+  'awaiting_return',
+  'rejected',
+  'inspection_rejected'
+]);
 
 const buildReturnStatusEmail = (req, returnRequest, items = []) => {
   const status = getReturnStatus(returnRequest);
@@ -888,6 +939,9 @@ const notifyReturnStatusChanged = async (req, db, returnRequest, statusOverride 
     : loadedContext;
 
   const status = getReturnStatus(context);
+  if (!USER_RETURN_STATUS_EMAILS.has(status)) {
+    return null;
+  }
   const items = await loadReturnEmailItems(db, getReturnId(context));
   const email = buildReturnStatusEmail(req, context, items);
 
@@ -929,49 +983,32 @@ const notifyRefundAccountSubmitted = async (req, db, returnRequestId) => {
     if (!refund) return [];
     const accountLabel = `${refund.refund_bank_name || 'Bank'} ${maskBankAccount(refund.refund_account_number)}`.trim();
     const order = { id: refund.order_id, customer_name: refund.customer_name, customer_email: refund.customer_email };
-    const deliveries = [];
-    if (refund.customer_email) {
-      deliveries.push(await sendUserEmail(
-        req,
-        db,
-        createEventKey('refund', 'account', 'submitted', refund.id, refund.refund_account_submitted_at || ''),
-        baseEmail(req, refund.customer_email, `Refund account received for order ${getOrderShortId(order)}`, [
-          `Hello ${refund.customer_name || 'Customer'},`,
-          `HEM received your refund account: ${accountLabel}.`,
-          'The account is ready for the pending refund.'
-        ], { ctaLabel: 'View order', url: orderLink(req, order) }),
-        { orderId: refund.order_id, refundId: refund.id, emailType: 'refund_account_submitted' }
-      ));
-    }
-    return deliveries;
-  }
-  const accountLabel = `${context.refund_bank_name || 'Bank'} ${maskBankAccount(context.refund_account_number)}`.trim();
-  const deliveries = [];
-
-  if (getReturnCustomerEmail(context)) {
-    deliveries.push(await sendUserEmail(
+    return sendAdminEmails(
       req,
       db,
-      createEventKey('return', 'refund_account', 'submitted', returnRequestId, context.refund_account_submitted_at || ''),
-      baseEmail(
+      ['admin', 'refund_account', 'submitted', refund.id, refund.refund_account_submitted_at || ''],
+      recipient => baseEmail(
         req,
-        getReturnCustomerEmail(context),
-        `Refund account received for return ${context.return_code}`,
+        recipient,
+        `Refund account saved for order ${getOrderShortId(order)}`,
         [
-          `Hello ${getReturnCustomerName(context)},`,
-          `HEM received your refund account: ${accountLabel}.`,
-          'The account is saved and ready to receive your approved refund.'
+          `${refund.customer_name || 'Customer'} submitted a refund account.`,
+          `Bank: ${refund.refund_bank_name || '-'}`,
+          `Account: ${accountLabel}`,
+          `Holder: ${refund.refund_account_holder || '-'}`,
+          'The account is ready for manual refund processing.'
         ],
         {
-          ctaLabel: 'View return',
-          url: returnLink(req, context)
+          ctaLabel: 'Review refund',
+          url: adminOrderLink(req, order),
+          from: 'HEM Admin Alerts <no-reply@hem.local>'
         }
       ),
-      { returnRequestId, emailType: 'refund_account_submitted' }
-    ));
+      { orderId: refund.order_id, refundId: refund.id, emailType: 'admin_refund_account_submitted' }
+    );
   }
-
-  deliveries.push(...await sendAdminEmails(
+  const accountLabel = `${context.refund_bank_name || 'Bank'} ${maskBankAccount(context.refund_account_number)}`.trim();
+  return sendAdminEmails(
     req,
     db,
     ['admin', 'refund_account', 'submitted', returnRequestId, context.refund_account_submitted_at || ''],
@@ -993,9 +1030,7 @@ const notifyRefundAccountSubmitted = async (req, db, returnRequestId) => {
       }
     ),
     { returnRequestId, emailType: 'admin_refund_account_submitted' }
-  ));
-
-  return deliveries;
+  );
 };
 
 const loadReviewContext = async (db, reviewId) => {
@@ -1081,6 +1116,7 @@ module.exports = {
   notifyOrderStatusChanged,
   notifyRefundAccountSubmitted,
   notifyRefundCompleted,
+  notifyRefundFailed,
   notifyRefundPending,
   notifyReturnRequested,
   notifyReturnStatusChanged

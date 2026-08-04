@@ -215,7 +215,15 @@ export default {
 }
 
 .coupon-card:not(.coupon-card--profile) .coupon-card__badge {
+  width: 96px;
   white-space: pre-line;
+  overflow-wrap: normal;
+}
+
+.coupon-card--profile .coupon-card__badge {
+  width: 96px;
+  white-space: nowrap;
+  overflow-wrap: normal;
 }
 
 .coupon-card__badge::after {

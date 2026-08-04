@@ -4,6 +4,7 @@ module.exports = ({
   PRODUCT_INVENTORY_TABLE,
   buildPaginationPayload,
   getDb,
+  invalidateProductListCache = () => {},
   isValidUuid,
   normalizeActiveStatus,
   parseListQuery,
@@ -144,6 +145,7 @@ controller.updateProductStatus = async (req, res) => {
       return res.status(404).json({ message: 'Product not found.' });
     }
 
+    invalidateProductListCache();
     return res.json({
       message: `Product ${status === 'active' ? 'activated' : 'deactivated'} successfully.`,
       product: {

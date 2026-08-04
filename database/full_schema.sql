@@ -422,7 +422,7 @@ CREATE TABLE IF NOT EXISTS orders (
         ON DELETE SET NULL,
 
     CONSTRAINT orders_payment_method_check CHECK (payment_method IN ('cod', 'bank_transfer')),
-    CONSTRAINT orders_payment_status_check CHECK (payment_status IN ('pending_payment', 'payment_under_review', 'paid', 'payment_expired', 'payment_cancelled', 'refund_pending', 'partially_refunded', 'refunded')),
+    CONSTRAINT orders_payment_status_check CHECK (payment_status IN ('pending_payment', 'payment_under_review', 'paid', 'payment_expired', 'payment_cancelled', 'payment_rejected', 'refund_pending', 'partially_refunded', 'refunded')),
     CONSTRAINT orders_order_status_check CHECK (order_status IN ('pending', 'confirmed', 'processing', 'shipping', 'delivery_failed', 'delivered', 'completed', 'cancelled')),
     CONSTRAINT orders_cancelled_by_check CHECK (cancelled_by IN ('user', 'admin', 'system') OR cancelled_by IS NULL),
     CONSTRAINT orders_refund_method_check CHECK (refund_method IN ('manual') OR refund_method IS NULL),

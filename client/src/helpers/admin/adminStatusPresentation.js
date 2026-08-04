@@ -9,7 +9,7 @@ export const adminPaymentStatusClass = value => {
   const status = String(value || '').toLowerCase();
 
   if (status === 'paid') return 'status--completed';
-  if (status === 'payment_expired' || status === 'payment_cancelled' || status === 'failed' || status === 'refunded') {
+  if (status === 'payment_expired' || status === 'payment_cancelled' || status === 'payment_rejected' || status === 'failed' || status === 'refunded') {
     return 'status--danger';
   }
   if (status === 'payment_under_review' || status === 'refund_pending') {

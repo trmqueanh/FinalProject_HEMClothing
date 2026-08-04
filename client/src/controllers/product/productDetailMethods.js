@@ -1,4 +1,3 @@
-// Các action của ProductDetail.vue được tách khỏi view để dễ theo dõi và debug.
 import { authStore, requestAuthModal } from '../../stores/authStore';
 import { catalogStore } from '../../stores/catalogStore';
 import { cartStore } from '../../stores/cartStore';

@@ -171,6 +171,20 @@ const listLatestReturnRowsByOrderIds = async (db, orderIds) => {
   return result.rows;
 };
 
+const hasReturnWithStatuses = async (db, orderId, statuses = []) => {
+  if (!orderId || !Array.isArray(statuses) || !statuses.length) return false;
+  const result = await db.query(
+    `SELECT EXISTS (
+       SELECT 1
+       FROM return_requests
+       WHERE order_id = $1
+         AND return_status = ANY($2::varchar[])
+     ) AS exists`,
+    [orderId, statuses]
+  );
+  return Boolean(result.rows[0] && result.rows[0].exists);
+};
+
 const listLatestRefundRowsByOrderIds = async (db, orderIds) => {
   if (!Array.isArray(orderIds) || !orderIds.length) return [];
   const result = await db.query(
@@ -230,33 +244,21 @@ const listReturnItemsForUpdate = async (db, returnRequestId, withOrderItems = fa
   return result.rows;
 };
 
-const findReturnableOrderItems = async (db, orderId, itemIds, activeStatuses) => {
+const findReturnableOrderItems = async (db, orderId, itemIds) => {
   const result = await db.query(
     `
       SELECT oi.*,
         COALESCE((
-          SELECT SUM(
-            CASE
-              WHEN rr.return_status = '${RETURN_STATUS.REQUESTED}' THEN ri.requested_quantity
-              WHEN rr.return_status IN (
-                '${RETURN_STATUS.APPROVED}', '${RETURN_STATUS.AWAITING_RETURN}',
-                '${RETURN_STATUS.RECEIVED}', '${RETURN_STATUS.INSPECTING}',
-                '${RETURN_STATUS.INSPECTION_APPROVED}'
-              ) THEN ri.approved_quantity
-              ELSE ri.accepted_quantity
-            END
-          )
+          SELECT SUM(ri.requested_quantity)
           FROM return_items ri
-          JOIN return_requests rr ON rr.id = ri.return_request_id
           WHERE ri.order_item_id = oi.id
-            AND rr.return_status = ANY($3::varchar[])
         ), 0)::int AS already_requested_quantity
       FROM order_items oi
       WHERE oi.order_id = $1
         AND oi.id = ANY($2::uuid[])
       FOR UPDATE
     `,
-    [orderId, itemIds, activeStatuses]
+    [orderId, itemIds]
   );
   return result.rows;
 };
@@ -389,7 +391,13 @@ const updateCustomerRefundAccount = async (db, {
           updated_at = now()
       WHERE rr.id = $1
         AND rr.user_id = $2
-        AND rr.return_status IN ('awaiting_return', 'received', 'inspecting', 'inspection_approved', 'refund_pending')
+        AND rr.return_status = 'refund_pending'
+        AND EXISTS (
+          SELECT 1
+          FROM refunds r
+          WHERE r.return_request_id = rr.id
+            AND r.status IN ('pending', 'failed')
+        )
         AND NOT EXISTS (
           SELECT 1
           FROM refunds r
@@ -632,6 +640,7 @@ module.exports = {
   findRefundBySourceKey,
   findReturnForUpdate,
   findReturnableOrderItems,
+  hasReturnWithStatuses,
   listRefundRows,
   listLatestRefundRowsByOrderIds,
   listLatestReturnRowsByOrderIds,

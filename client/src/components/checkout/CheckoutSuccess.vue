@@ -85,21 +85,37 @@
               </div>
             </dl>
           </div>
-          <button
-            type="button"
-            class="checkout-success__paid-button"
-            :disabled="!canNotifyPaid"
-            @click="$emit('mark-bank-transfer-paid')"
-          >
-            I've Paid
-          </button>
+          <div class="checkout-success__payment-actions">
+            <button
+              type="button"
+              class="checkout-success__paid-button"
+              :disabled="!canNotifyPaid || isCancellingPayment"
+              @click="$emit('mark-bank-transfer-paid')"
+            >
+              I have Paid
+            </button>
+            <button
+              type="button"
+              class="checkout-success__cancel-payment-button"
+              :disabled="isMarkingPaymentPaid || isCancellingPayment"
+              @click="$emit('cancel-bank-transfer')"
+            >
+              {{ isCancellingPayment ? 'Cancelling...' : 'Cancel Payment' }}
+            </button>
+          </div>
         </template>
 
-        <div v-else class="checkout-success__payment-state" :class="{ 'is-loading': isMarkingPaymentPaid }" aria-live="polite">
+        <div
+          v-else
+          class="checkout-success__payment-state"
+          :class="{ 'is-loading': isMarkingPaymentPaid, 'is-cancelled': isPaymentCancelled || isPaymentRejected }"
+          aria-live="polite"
+        >
           <span class="checkout-success__payment-state-icon" aria-hidden="true">
             <span v-if="isMarkingPaymentPaid" class="checkout-success__payment-spinner"></span>
             <svg v-else viewBox="0 0 24 24" fill="none">
-              <path d="M5 12.5l4.2 4.2L19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <path v-if="isPaymentCancelled || isPaymentRejected" d="M7 7l10 10M17 7 7 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <path v-else d="M5 12.5l4.2 4.2L19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </span>
           <p class="checkout-success__payment-state-label">{{ paymentStateLabel }}</p>
@@ -272,9 +288,13 @@ export default {
     isMarkingPaymentPaid: {
       type: Boolean,
       default: false
+    },
+    isCancellingPayment: {
+      type: Boolean,
+      default: false
     }
   },
-  emits: ['activate-bank-transfer', 'mark-bank-transfer-paid', 'expire-bank-transfer', 'refresh-bank-transfer'],
+  emits: ['activate-bank-transfer', 'mark-bank-transfer-paid', 'cancel-bank-transfer', 'expire-bank-transfer', 'refresh-bank-transfer'],
   data() {
     return {
       remainingSeconds: 0,
@@ -294,10 +314,18 @@ export default {
     bankTransfer() {
       return this.orderResult.bankTransfer || {};
     },
+    isPaymentCancelled() {
+      return String(this.orderResult.paymentStatus || '').toLowerCase() === 'payment_cancelled';
+    },
+    isPaymentRejected() {
+      return String(this.orderResult.paymentStatus || '').toLowerCase() === 'payment_rejected';
+    },
     heroLabel() {
       if (!this.isBankTransfer) return 'Order placed';
       if (this.orderResult.paymentStatus === 'paid') return 'Payment confirmed';
       if (this.orderResult.paymentStatus === 'payment_under_review') return 'Payment under review';
+      if (this.isPaymentCancelled) return 'Payment cancelled';
+      if (this.isPaymentRejected) return 'Payment rejected';
       if (this.orderResult.paymentStatus === 'payment_expired') return 'Payment expired';
       return 'Please complete your payment';
     },
@@ -305,13 +333,17 @@ export default {
       if (!this.isBankTransfer) return 'Thank you for your order';
       if (this.orderResult.paymentStatus === 'paid') return 'Your order is being prepared';
       if (this.orderResult.paymentStatus === 'payment_under_review') return 'We are verifying your transfer';
+      if (this.isPaymentCancelled) return 'This order was cancelled';
+      if (this.isPaymentRejected) return 'Your payment was not confirmed';
       if (this.orderResult.paymentStatus === 'payment_expired') return 'This order was cancelled';
       return 'Scan the VietQR to pay';
     },
     heroMessage() {
       if (!this.isBankTransfer) return 'Your COD order was placed successfully. Payment will be collected upon delivery.';
-      if (this.orderResult.paymentStatus === 'paid') return 'Your payment was confirmed and HEM is preparing your order.';
+      if (this.orderResult.paymentStatus === 'paid') return 'Your payment was confirmed and HEM Shop is preparing your order.';
       if (this.orderResult.paymentStatus === 'payment_under_review') return 'We received your payment notification. HEM will verify the bank transaction before preparing the order.';
+      if (this.isPaymentCancelled) return 'The payment and order were cancelled at your request.';
+      if (this.isPaymentRejected) return this.orderResult.paymentReviewReason || 'The bank transfer could not be verified and the order was cancelled.';
       if (this.orderResult.paymentStatus === 'payment_expired') return 'The 10-minute payment window ended. Return to your bag and place a new order to try again.';
       return 'Complete the transfer within 10 minutes, then tap I have Paid.';
     },
@@ -323,10 +355,15 @@ export default {
       const seconds = this.remainingSeconds % 60;
       return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     },
+    paymentWindowSeconds() {
+      return Math.max(60, Math.round(Number(this.bankTransfer.paymentWindowMinutes || 10) * 60));
+    },
     qrUnavailableLabel() {
       const status = String(this.orderResult.paymentStatus || '').toLowerCase();
       if (status === 'payment_under_review') return 'Payment notification submitted';
       if (status === 'paid') return 'Payment confirmed';
+      if (status === 'payment_cancelled') return 'Payment cancelled';
+      if (status === 'payment_rejected') return 'Payment rejected';
       if (status === 'payment_expired') return 'QR expired';
       return 'QR unavailable';
     },
@@ -352,6 +389,8 @@ export default {
       const status = String(this.orderResult.paymentStatus || '').toLowerCase();
       if (status === 'payment_under_review') return 'Payment is under review';
       if (status === 'paid') return 'Payment confirmed';
+      if (status === 'payment_cancelled') return 'Your order was cancelled';
+      if (status === 'payment_rejected') return 'Your payment was rejected';
       if (status === 'payment_expired') return 'Payment window expired';
       return 'Payment update';
     },
@@ -360,6 +399,9 @@ export default {
       if (this.orderResult.paymentStatus === 'payment_under_review') {
         return 'We are reviewing your bank transfer. You will receive an email after the payment is verified.';
       }
+      if (this.isPaymentCancelled) {
+        return 'The QR code is no longer valid. Reserved items and any applied coupon have been released.';
+      }
       return this.paymentReviewNote;
     },
     paymentReviewNote() {
@@ -367,6 +409,8 @@ export default {
       const status = String(this.orderResult.paymentStatus || '').toLowerCase();
       if (status === 'payment_under_review') return 'Your payment notice is under review.';
       if (status === 'paid') return 'Payment confirmed.';
+      if (status === 'payment_cancelled') return 'Payment and order cancelled.';
+      if (status === 'payment_rejected') return this.orderResult.paymentReviewReason || 'Payment verification failed and the order was cancelled.';
       if (status === 'payment_expired') return 'Payment expired. This order was cancelled; place a new order to pay again.';
       return 'Payment status will update after admin verification.';
     }
@@ -380,6 +424,9 @@ export default {
     },
     'bankTransfer.activatedAt'(value) {
       if (value) this.activationRequested = true;
+      this.startCountdown();
+    },
+    'bankTransfer.serverTime'() {
       this.startCountdown();
     },
     'orderResult.paymentStatus': {
@@ -445,7 +492,7 @@ export default {
         if (!this.activationDisplayStartedAt) this.activationDisplayStartedAt = Date.now();
         const tickBeforeActivation = () => {
           const elapsedSeconds = Math.floor((Date.now() - this.activationDisplayStartedAt) / 1000);
-          this.remainingSeconds = Math.max(0, 600 - elapsedSeconds);
+          this.remainingSeconds = Math.max(0, this.paymentWindowSeconds - elapsedSeconds);
         };
         tickBeforeActivation();
         this.countdownTimer = setInterval(tickBeforeActivation, 1000);
@@ -457,7 +504,10 @@ export default {
       const tick = () => {
         const expiresAt = new Date(this.bankTransfer.expiresAt).getTime();
         const serverAlignedNow = Date.now() + this.serverClockOffsetMs;
-        this.remainingSeconds = Math.max(0, Math.ceil((expiresAt - serverAlignedNow) / 1000));
+        this.remainingSeconds = Math.min(
+          this.paymentWindowSeconds,
+          Math.max(0, Math.ceil((expiresAt - serverAlignedNow) / 1000))
+        );
         if (this.remainingSeconds === 0) {
           this.stopCountdown();
           if (!this.expirationRequested) {
@@ -568,6 +618,39 @@ export default {
   font-size: 14px;
   font-weight: 800;
   cursor: pointer;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.checkout-success__payment-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.checkout-success__cancel-payment-button {
+  min-height: 42px;
+  padding: 0 22px;
+  border: 1px solid #b42318;
+  border-radius: 999px;
+  background: #b42318;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.checkout-success__paid-button:hover:not(:disabled),
+.checkout-success__cancel-payment-button:hover:not(:disabled) {
+  opacity: 0.86;
+  transform: translateY(-1px);
+}
+
+.checkout-success__paid-button:disabled,
+.checkout-success__cancel-payment-button:disabled {
+  cursor: wait;
+  opacity: 0.6;
 }
 
 .checkout-success__review-note {
@@ -606,6 +689,10 @@ export default {
 
 .checkout-success__payment-state.is-loading .checkout-success__payment-state-icon {
   color: #111111;
+}
+
+.checkout-success__payment-state.is-cancelled .checkout-success__payment-state-icon {
+  color: #b42318;
 }
 
 .checkout-success__payment-spinner {
@@ -1173,6 +1260,14 @@ export default {
     width: 100%;
   }
 
+  .checkout-success__payment-actions {
+    display: grid;
+  }
+
+  .checkout-success__cancel-payment-button {
+    width: 100%;
+  }
+
   .checkout-success__payment-state {
     min-height: 260px;
     padding: 28px 18px;
@@ -1370,6 +1465,7 @@ export default {
   }
 
   .checkout-success__paid-button,
+  .checkout-success__cancel-payment-button,
   .checkout-success__btn-primary,
   .checkout-success__btn-ghost {
     min-height: 50px;

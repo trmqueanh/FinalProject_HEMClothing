@@ -39,11 +39,11 @@ const netOrderAmount = (alias = '') => {
   )`;
 };
 
-// Revenue is the delivered/completed order value left after completed refunds.
+// Revenue is recognized only after an order is completed, net of completed refunds.
 const revenueCondition = (alias = '') => {
   const prefix = alias ? `${alias}.` : '';
   return `(
-    ${prefix}order_status IN ('${ORDER_STATUS.DELIVERED}', '${ORDER_STATUS.COMPLETED}')
+    ${prefix}order_status = '${ORDER_STATUS.COMPLETED}'
     AND ${revenuePaymentCondition(alias)}
   )`;
 };

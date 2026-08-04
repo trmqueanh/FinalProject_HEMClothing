@@ -42,6 +42,16 @@ import {
   splitVietnamPhone
 } from '../../utils/vietnamLocations';
 
+const OPEN_RETURN_STATUSES = new Set([
+  'requested',
+  'approved',
+  'awaiting_return',
+  'received',
+  'inspecting',
+  'inspection_approved',
+  'refund_pending'
+]);
+
 export const profileMethods = {
     formatCurrency,
     async loadLocations() {
@@ -75,7 +85,13 @@ export const profileMethods = {
     hasComparePrice: orderItemHasComparePrice,
     priceLabel,
     canConfirmReceived(order) {
-      return String(order && order.orderStatus || '').toLowerCase() === 'delivered' &&
+      const request = order && order.returnRequest;
+      const returnStatus = String(request && (request.returnStatus || request.status) || '').toLowerCase();
+      const hasActiveReturn = Boolean(request) && (
+        request.hasActiveReturn === true || OPEN_RETURN_STATUSES.has(returnStatus)
+      );
+      return !hasActiveReturn &&
+        String(order && order.orderStatus || '').toLowerCase() === 'delivered' &&
         this.isWithinDeliveryWindow(order);
     },
     canCancelOrder(order) {
@@ -86,11 +102,21 @@ export const profileMethods = {
     },
     canRequestReturn(order) {
       const status = String(order && order.orderStatus || '').toLowerCase();
+      const request = order && order.returnRequest;
+      const returnStatus = String(request && (request.returnStatus || request.status) || '').toLowerCase();
+      const hasActiveReturn = Boolean(request) && (
+        request.hasActiveReturn === true || OPEN_RETURN_STATUSES.has(returnStatus)
+      );
       return ['delivered', 'completed'].includes(status) &&
-        this.isWithinDeliveryWindow(order);
+        !hasActiveReturn &&
+        this.isWithinDeliveryWindow(order) &&
+        Array.isArray(order && order.items) &&
+        order.items.some(item => Number(item.returnableQuantity || 0) > 0);
     },
     canReviewOrderItem(order, item) {
-      return String(order && order.orderStatus || '').toLowerCase() === 'completed' && !item.reviewId && !item.hasReview;
+      return String(order && order.orderStatus || '').toLowerCase() === 'completed' &&
+        !item.reviewId &&
+        !item.hasReview;
     },
     isReviewedOrderItem(order, item) {
       return String(order && order.orderStatus || '').toLowerCase() === 'completed' && Boolean(item.reviewId || item.hasReview);
@@ -282,7 +308,8 @@ export const profileMethods = {
       try {
         const items = await Promise.all((payload.items || []).map(async item => {
           const uploaded = await prepareReturnEvidenceForSave(item.evidenceFiles || []);
-          const { evidenceFiles: _evidenceFiles, ...returnItem } = item;
+          const returnItem = { ...item };
+          delete returnItem.evidenceFiles;
           return {
             ...returnItem,
             evidenceUrls: uploaded.map(asset => asset.imageUrl)
@@ -294,13 +321,48 @@ export const profileMethods = {
         }
 
         const returnRequest = response.returnRequest;
+        const requestedQuantityByItemId = new Map(
+          (returnRequest.items || []).map(item => [
+            String(item.orderItemId || ''),
+            Number(item.requestedQuantity || 0)
+          ])
+        );
+        const applySubmittedReturn = existingOrder => ({
+          ...existingOrder,
+          returnRequest,
+          returnRequests: [
+            returnRequest,
+            ...(existingOrder.returnRequests || []).filter(request => request.id !== returnRequest.id)
+          ],
+          items: (existingOrder.items || []).map(item => ({
+            ...item,
+            returnableQuantity: Math.max(
+              0,
+              Number(item.returnableQuantity || 0) - Number(requestedQuantityByItemId.get(String(item.id)) || 0)
+            )
+          }))
+        });
         this.orders = this.orders.map(existingOrder =>
           existingOrder.id === order.id
-            ? { ...existingOrder, returnRequest }
+            ? applySubmittedReturn(existingOrder)
             : existingOrder
         );
         if (this.selectedOrder && this.selectedOrder.id === order.id) {
-          this.selectedOrder = { ...this.selectedOrder, returnRequest };
+          this.selectedOrder = applySubmittedReturn(this.selectedOrder);
+        }
+        await this.loadOrders({ background: true, force: true });
+        if (this.orderDetailId === String(order.id)) {
+          const currentReturnId = String(this.$route.query.return || '').trim();
+          if (currentReturnId !== String(returnRequest.id)) {
+            await this.$router.replace({
+              query: {
+                ...this.$route.query,
+                return: String(returnRequest.id)
+              }
+            });
+          } else {
+            await this.loadOrderDetail({ background: true, force: true });
+          }
         }
         this.flash('Return request submitted.', 'success');
         return true;
@@ -428,6 +490,10 @@ export const profileMethods = {
     setSection(section, extraQuery = {}) {
       this.activeSection = normalizeProfileSection(section);
       this.editingSection = '';
+
+      if (this.activeSection === 'coupons') {
+        this.loadCoupons();
+      }
 
       if (this.activeSection === 'orders') {
         this.$router.replace('/profile/orders');
@@ -563,77 +629,131 @@ export const profileMethods = {
       const payload = await profileApi.getProfile();
       this.applyProfile(payload);
     },
-    async loadOrders() {
-      this.isLoadingOrders = true;
-      const response = await profileApi.getMyOrders({
-        page: this.currentOrderPage,
-        limit: this.ordersPagination.limit,
-        search: this.orderSearch || undefined,
-        statuses: this.selectedOrderStatuses.join(',') || undefined,
-        requests: this.isOrderRequestFilter
-          ? 'active'
-          : (this.orderStatusFilter === 'all' ? undefined : 'exclude_active')
-      });
-      this.orders = Array.isArray(response) ? response : response.items || [];
-      if (response && !Array.isArray(response) && response.summary) {
-        this.orderSummary = {
-          totalOrders: Number(response.summary.totalOrders || 0),
-          totalSpent: Number(response.summary.totalSpent || 0)
-        };
-      }
-      const nextPagination = response && response.pagination
-        ? response.pagination
-        : {
-            ...this.ordersPagination,
-            page: this.currentOrderPage,
-            totalItems: this.orders.length,
-            totalPages: 1
+    async loadOrders(options = {}) {
+      const background = Boolean(options.background);
+      if (background && (this.isLoadingOrders || (this.isSaving && !options.force))) return;
+      if (!background) this.isLoadingOrders = true;
+      try {
+        const response = await profileApi.getMyOrders({
+          page: this.currentOrderPage,
+          limit: this.ordersPagination.limit,
+          search: this.orderSearch || undefined,
+          statuses: this.selectedOrderStatuses.join(',') || undefined,
+          requests: this.isOrderRequestFilter
+            ? 'active'
+            : (this.orderStatusFilter === 'all' ? undefined : 'exclude_active')
+        });
+        this.orders = Array.isArray(response) ? response : response.items || [];
+        if (response && !Array.isArray(response) && response.summary) {
+          this.orderSummary = {
+            totalOrders: Number(response.summary.totalOrders || 0),
+            totalSpent: Number(response.summary.totalSpent || 0)
           };
+        }
+        const nextPagination = response && response.pagination
+          ? response.pagination
+          : {
+              ...this.ordersPagination,
+              page: this.currentOrderPage,
+              totalItems: this.orders.length,
+              totalPages: 1
+            };
 
-      if (this.currentOrderPage > nextPagination.totalPages) {
-        this.currentOrderPage = Math.max(1, nextPagination.totalPages);
-        return this.loadOrders();
+        if (this.currentOrderPage > nextPagination.totalPages) {
+          this.currentOrderPage = Math.max(1, nextPagination.totalPages);
+          return this.loadOrders(options);
+        }
+
+        this.ordersPagination = nextPagination;
+      } finally {
+        if (!background) this.isLoadingOrders = false;
       }
-
-      this.ordersPagination = nextPagination;
-      this.isLoadingOrders = false;
     },
-    async loadOrderDetail() {
+    async loadOrderDetail(options = {}) {
       if (!this.orderDetailId) {
         this.selectedOrder = null;
         this.orderTimeline = [];
         return;
       }
 
-      this.isLoadingOrderDetail = true;
-      const response = await profileApi.getMyOrder(this.orderDetailId);
-      const latestReturnId = String(response && response.returnRequest && response.returnRequest.id || '').trim();
-      const requestedReturnId = String(this.$route.query.return || '').trim();
-      const selectedReturnId = requestedReturnId || latestReturnId;
-      let returnResponse = selectedReturnId
-        ? await profileApi.getMyReturn(selectedReturnId)
-        : null;
-      const selectedReturnOrderId = String(returnResponse && returnResponse.returnRequest && returnResponse.returnRequest.orderId || '').trim();
-      if (
-        (!returnResponse || !returnResponse.returnRequest || selectedReturnOrderId !== String(this.orderDetailId)) &&
-        latestReturnId &&
-        selectedReturnId !== latestReturnId
-      ) {
-        returnResponse = await profileApi.getMyReturn(latestReturnId);
-      }
-      this.selectedOrder = response && response.order
-        ? {
-            ...response.order,
-            bankTransfer: response.bankTransfer || null,
-            returnRequest: returnResponse && returnResponse.returnRequest
-              ? returnResponse.returnRequest
-              : (response.returnRequest || null),
-            refundRequest: response.refundRequest || null,
-            items: Array.isArray(response.items) ? response.items : []
+      const background = Boolean(options.background);
+      if (background && (this.isLoadingOrderDetail || (this.isSaving && !options.force))) return;
+      if (!background) this.isLoadingOrderDetail = true;
+      try {
+        const response = await profileApi.getMyOrder(this.orderDetailId);
+        if (!response || !response.order) {
+          if (!background) {
+            this.selectedOrder = null;
+            this.orderTimeline = [];
           }
-        : null;
-      this.orderTimeline = Array.isArray(response && response.timeline) ? response.timeline : [];
-      this.isLoadingOrderDetail = false;
+          return;
+        }
+        const latestReturnId = String(response.returnRequest && response.returnRequest.id || '').trim();
+        const requestedReturnId = String(this.$route.query.return || '').trim();
+        const selectedReturnId = requestedReturnId || latestReturnId;
+        let returnResponse = selectedReturnId
+          ? await profileApi.getMyReturn(selectedReturnId)
+          : null;
+        const selectedReturnOrderId = String(returnResponse && returnResponse.returnRequest && returnResponse.returnRequest.orderId || '').trim();
+        if (
+          (!returnResponse || !returnResponse.returnRequest || selectedReturnOrderId !== String(this.orderDetailId)) &&
+          latestReturnId &&
+          selectedReturnId !== latestReturnId
+        ) {
+          returnResponse = await profileApi.getMyReturn(latestReturnId);
+        }
+        this.selectedOrder = {
+          ...response.order,
+          bankTransfer: response.bankTransfer || null,
+          returnRequest: returnResponse && returnResponse.returnRequest
+            ? {
+                ...returnResponse.returnRequest,
+                hasActiveReturn: response.returnRequest && response.returnRequest.hasActiveReturn === true
+              }
+            : (response.returnRequest || null),
+          refundRequest: response.refundRequest || null,
+          returnRequests: Array.isArray(response.returnRequests) ? response.returnRequests : [],
+          items: Array.isArray(response.items) ? response.items : []
+        };
+        this.orderTimeline = Array.isArray(response.timeline) ? response.timeline : [];
+      } finally {
+        if (!background) this.isLoadingOrderDetail = false;
+      }
+    },
+    async refreshOrderSurfaces() {
+      if (
+        this.orderSyncInFlight ||
+        this.activeSection !== 'orders' ||
+        this.isSaving ||
+        (typeof document !== 'undefined' && document.hidden)
+      ) return;
+
+      this.orderSyncInFlight = true;
+      try {
+        if (this.orderDetailId) {
+          await this.loadOrderDetail({ background: true });
+          return;
+        }
+        await this.loadOrders({ background: true });
+      } finally {
+        this.orderSyncInFlight = false;
+      }
+    },
+    handleOrderSyncFocus() {
+      this.refreshOrderSurfaces();
+    },
+    handleOrderVisibilityChange() {
+      if (typeof document !== 'undefined' && !document.hidden) {
+        this.refreshOrderSurfaces();
+      }
+    },
+    startOrderSync() {
+      this.stopOrderSync();
+      this.orderSyncTimer = window.setInterval(() => this.refreshOrderSurfaces(), 15000);
+    },
+    stopOrderSync() {
+      if (this.orderSyncTimer) window.clearInterval(this.orderSyncTimer);
+      this.orderSyncTimer = null;
     },
     async redirectLegacyReturnDetail() {
       const returnRequestId = this.returnDetailId;
@@ -668,6 +788,9 @@ export const profileMethods = {
         this.selectedOrder = {
           ...this.selectedOrder,
           returnRequest: updatedReturn,
+          returnRequests: (this.selectedOrder.returnRequests || []).map(request =>
+            String(request.id) === String(updatedReturn.id) ? updatedReturn : request
+          ),
           refundRequest: updatedRefund ? { ...currentRefund, ...updatedRefund } : currentRefund
         };
         this.flash('Refund account saved.', 'success');

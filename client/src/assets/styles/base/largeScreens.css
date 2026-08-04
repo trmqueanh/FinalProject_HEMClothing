@@ -2877,6 +2877,7 @@
   }
 
   body.hem-shop-shell .checkout-success__paid-button,
+  body.hem-shop-shell .checkout-success__cancel-payment-button,
   body.hem-shop-shell .checkout-success__btn-primary,
   body.hem-shop-shell .checkout-success__btn-ghost {
     min-height: 3.5rem !important;

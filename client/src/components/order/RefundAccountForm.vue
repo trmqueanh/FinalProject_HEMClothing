@@ -93,4 +93,37 @@ export default {
 .refund-account-form__actions { display: flex; justify-content: flex-end; gap: 8px; }
 .refund-account-form button:disabled { opacity: .5; }
 @media (max-width: 680px) { .refund-account-form form { grid-template-columns: 1fr; } .refund-account-form__confirm, .refund-account-form form > p, .refund-account-form__actions { grid-column: auto; } }
+@media (min-width: 1440px) {
+  .refund-account-form { gap: 18px; margin-top: 18px; padding-top: 18px; }
+  .refund-account-form__heading h3 { font-size: 20px; line-height: 1.25; }
+  .refund-account-form__required { padding: 7px 12px; font-size: 14px; }
+  .refund-account-form__summary { gap: 7px; font-size: 14px; }
+  .refund-account-form form { gap: 16px; }
+  .refund-account-form label { gap: 8px; font-size: 14px; }
+  .refund-account-form input:not([type='checkbox']), .refund-account-form select {
+    min-height: 48px;
+    padding: 0 14px;
+    font-size: 15px;
+  }
+  .refund-account-form__confirm { gap: 10px; line-height: 1.5; }
+  .refund-account-form__confirm input { width: 18px; height: 18px; margin-top: 1px; }
+  .refund-account-form form > p { font-size: 14px; line-height: 1.6; }
+  .refund-account-form button { min-height: 44px; padding: 0 18px; font-size: 14px; }
+}
+@media (min-width: 1920px) {
+  .refund-account-form { gap: 22px; margin-top: 22px; padding-top: 22px; }
+  .refund-account-form__heading h3 { font-size: 24px; }
+  .refund-account-form__required { padding: 8px 14px; font-size: 16px; }
+  .refund-account-form__summary { font-size: 16px; }
+  .refund-account-form form { gap: 20px; }
+  .refund-account-form label { font-size: 16px; }
+  .refund-account-form input:not([type='checkbox']), .refund-account-form select {
+    min-height: 54px;
+    padding: 0 16px;
+    font-size: 16px;
+  }
+  .refund-account-form__confirm input { width: 20px; height: 20px; }
+  .refund-account-form form > p { font-size: 16px; }
+  .refund-account-form button { min-height: 50px; padding: 0 22px; font-size: 16px; }
+}
 </style>

@@ -333,6 +333,7 @@ const productAdminController = createProductAdminController({
   STYLE_TABLE,
   buildPaginationPayload,
   getDb,
+  invalidateProductListCache: productController.invalidateProductListCache,
   isValidUuid,
   normalizeActiveStatus,
   parseListQuery,
@@ -421,6 +422,7 @@ const inventoryAdminController = createInventoryAdminController({
   LOW_STOCK_THRESHOLD,
   buildPaginationPayload,
   getDb,
+  invalidateProductListCache: productController.invalidateProductListCache,
   inventoryModel,
   parseListQuery,
   sendError

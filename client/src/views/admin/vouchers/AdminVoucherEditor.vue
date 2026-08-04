@@ -11,7 +11,6 @@
       <section class="admin-entity-editor">
         <header class="admin-entity-editor__heading">
           <h1>{{ isEditing ? 'Edit voucher' : 'Create voucher' }}</h1>
-          <p>Set the discount rules, validity period, usage limit, and storefront availability.</p>
         </header>
 
         <form class="admin-editor-form" @submit.prevent="saveVoucher">
@@ -33,7 +32,7 @@
             <input
               v-model.number="form.discountValue"
               type="number"
-              min="0.01"
+              :min="form.discountType === 'percent' ? '0.01' : '1000'"
               :max="form.discountType === 'percent' ? 100 : undefined"
               :step="form.discountType === 'percent' ? '0.01' : '1000'"
               required

@@ -114,7 +114,14 @@ export const fetchAdminCustomerDetail = async (customerId, params = {}, options 
     });
     return payload;
   }
-  if (pendingRequests.has(key)) return pendingRequests.get(key);
+  if (pendingRequests.has(key)) {
+    if (!options.force) return pendingRequests.get(key);
+    try {
+      await pendingRequests.get(key);
+    } catch {
+      // Continue with the forced request below after a stale prefetch fails.
+    }
+  }
 
   const request = adminApi.getAdminCustomer(normalizedCustomerId, {
     ...params,
@@ -152,7 +159,14 @@ export const fetchAdminCustomerOrders = async (customerId, params = {}, options 
   }
 
   const pendingKey = `orders:${key}`;
-  if (pendingRequests.has(pendingKey)) return pendingRequests.get(pendingKey);
+  if (pendingRequests.has(pendingKey)) {
+    if (!options.force) return pendingRequests.get(pendingKey);
+    try {
+      await pendingRequests.get(pendingKey);
+    } catch {
+      // Continue with the forced request below after a stale prefetch fails.
+    }
+  }
 
   const request = adminApi.getAdminCustomerOrders(normalizedCustomerId, {
     ...params,

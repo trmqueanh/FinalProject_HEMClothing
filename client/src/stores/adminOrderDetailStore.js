@@ -21,6 +21,20 @@ export const primeAdminOrderDetail = payload => {
   });
 };
 
+export const patchAdminOrderDetailOrder = order => {
+  const orderId = normalizeId(order && order.id);
+  const cached = detailCache.get(orderId);
+  if (!orderId || !cached || !cached.payload || !cached.payload.order) return;
+
+  primeAdminOrderDetail({
+    ...cached.payload,
+    order: {
+      ...cached.payload.order,
+      ...order
+    }
+  });
+};
+
 export const fetchAdminOrderDetail = async (orderId, options = {}) => {
   const normalizedOrderId = normalizeId(orderId);
   if (!normalizedOrderId) return null;
@@ -29,7 +43,14 @@ export const fetchAdminOrderDetail = async (orderId, options = {}) => {
   const isFresh = cached && Date.now() - cached.cachedAt < ORDER_DETAIL_TTL_MS;
 
   if (!options.force && isFresh) return cached.payload;
-  if (pendingRequests.has(normalizedOrderId)) return pendingRequests.get(normalizedOrderId);
+  if (pendingRequests.has(normalizedOrderId)) {
+    if (!options.force) return pendingRequests.get(normalizedOrderId);
+    try {
+      await pendingRequests.get(normalizedOrderId);
+    } catch {
+      // A forced refresh below replaces a failed or stale prefetch request.
+    }
+  }
 
   const request = adminApi.getAdminOrder(normalizedOrderId)
     .then(payload => {

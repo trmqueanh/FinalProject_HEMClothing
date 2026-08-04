@@ -424,11 +424,11 @@
   height: 36px;
   border: 1px solid var(--color-border-default);
   border-radius: 999px;
-  background: none;
+  background: #000000;
   cursor: pointer;
   font-size: var(--font-size-xs);
   font-weight: 500;
-  color: var(--color-text-secondary);
+  color: #ffffff;
   font-family: inherit;
   letter-spacing: 0.02em;
   transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;

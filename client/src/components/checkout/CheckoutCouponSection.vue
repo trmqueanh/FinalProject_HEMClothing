@@ -331,7 +331,8 @@ export default {
 .checkout-coupon__available button {
   min-height: 34px;
   background: transparent;
-  color: #111111;
+  color: #ffffff;
+  background: #000000;
 }
 
 .checkout-coupon__applied .checkout-coupon__remove:hover {

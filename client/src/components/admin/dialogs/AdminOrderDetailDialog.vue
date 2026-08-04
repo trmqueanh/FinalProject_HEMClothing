@@ -105,6 +105,39 @@
                   </div>
 
                   <div
+                    v-if="selectedAdminOrderDetail.returnRequests && selectedAdminOrderDetail.returnRequests.length > 1"
+                    class="admin-order-detail-dialog__return-history"
+                  >
+                    <div class="admin-order-detail-dialog__return-history-heading">
+                      <p class="admin-panel__eyebrow">Return history</p>
+                      <strong>{{ selectedAdminOrderDetail.returnRequests.length }} requests</strong>
+                    </div>
+                    <article
+                      v-for="request in selectedAdminOrderDetail.returnRequests"
+                      :key="request.id"
+                      class="admin-order-detail-dialog__return-history-item"
+                    >
+                      <div>
+                        <strong>{{ request.returnCode }}</strong>
+                        <span>{{ formatDate(request.requestedAt) }}</span>
+                      </div>
+                      <span class="status" :class="workflowStatusClass(request.returnStatus)">
+                        {{ formatLabel(request.returnStatus) }}
+                      </span>
+                      <button
+                        type="button"
+                        class="table-action"
+                        @click="syncSelectedAdminOrderDetailReturnRequest(request)"
+                      >
+                        Open
+                      </button>
+                      <p>
+                        {{ (request.items || []).map(item => `${item.productName} × ${item.requestedQuantity}`).join(' · ') }}
+                      </p>
+                    </article>
+                  </div>
+
+                  <div
                     v-if="selectedAdminOrderDetail.returnRequest"
                     class="admin-order-detail-dialog__return admin-order-detail-dialog__workflow-step"
                   >
@@ -196,10 +229,10 @@
                       <button v-if="canInspectReturnRequest(selectedAdminOrderDetail.returnRequest)" type="button" class="table-action table-action--order-primary" @click="requestInspectReturn(selectedAdminOrderDetail.returnRequest)">Submit Inspection</button>
                     </div>
                     <div
-                      v-if="
-                        selectedAdminOrderDetail.returnRequest.refundAccount &&
-                        !selectedAdminOrderDetail.refundRequest
-                      "
+                      v-if="shouldShowReturnRefundAccount(
+                        selectedAdminOrderDetail.returnRequest,
+                        selectedAdminOrderDetail.refundRequest
+                      )"
                       class="admin-order-detail-dialog__refund-account"
                     >
                       <div>
@@ -746,6 +779,51 @@ export default createAdminSectionProxy('AdminOrderDetailDialog');
 
 .admin-order-detail-dialog__actions .table-status-note--action {
   max-width: none;
+}
+
+.admin-order-detail-dialog__return-history {
+  display: grid;
+  gap: 10px;
+  padding: 18px 20px;
+  border: 1px solid rgba(17, 17, 17, 0.1);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.admin-order-detail-dialog__return-history-heading,
+.admin-order-detail-dialog__return-history-item > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.admin-order-detail-dialog__return-history-heading p,
+.admin-order-detail-dialog__return-history-item p {
+  margin: 0;
+}
+
+.admin-order-detail-dialog__return-history-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px 14px;
+  padding: 12px 0;
+  border-top: 1px solid rgba(17, 17, 17, 0.08);
+}
+
+.admin-order-detail-dialog__return-history-item > div {
+  justify-content: flex-start;
+}
+
+.admin-order-detail-dialog__return-history-item > div span,
+.admin-order-detail-dialog__return-history-item p {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.admin-order-detail-dialog__return-history-item p {
+  grid-column: 1 / -1;
 }
 
 .admin-order-detail-dialog__return {

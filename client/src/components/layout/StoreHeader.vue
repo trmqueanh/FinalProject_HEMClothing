@@ -349,7 +349,7 @@ export default {
     accountDisplayName() {
       const name = String(this.currentUser && (this.currentUser.name || this.currentUser.fullName || this.currentUser.email) || '').trim();
       if (!name) return 'there';
-      return name.split(/\s+/)[0];
+      return name.split(/\s+/)[1];
     },
     trimmedSearchQuery() {
       return String(this.searchQuery || '').trim();
@@ -534,10 +534,6 @@ export default {
 </script>
 
 <style scoped>
-/* ═══════════════════════════════════════════════════════════════
-   STORE HEADER — Nike-style CSS
-   Replace the entire <style scoped> block in StoreHeader.vue
-═══════════════════════════════════════════════════════════════ */
 
 /* ── Shell ── */
 .store-header {

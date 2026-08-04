@@ -15,7 +15,7 @@
     <section v-else-if="!cartItems.length" class="shell-card cart-empty">
       <h2>Your bag is empty.</h2>
       <p>Start in the shop to add tailored layers, dresses, or accessories.</p>
-      <router-link to="/women" class="primary-button">Browse products</router-link>
+      <router-link to="/women" class="primary-button">Shopping Now</router-link>
     </section>
 
     <section v-else class="cart-layout">

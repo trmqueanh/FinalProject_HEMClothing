@@ -404,6 +404,8 @@ export default {
       departmentProductGroupItems: [],
       coupons: [],
       isLoadingCoupons: true,
+      isRefreshingStorefront: false,
+      hasLoadedStorefront: false,
       landingCategorySeed: Date.now(),
       searchQuery: '',
       activeProductGroup: 'All',
@@ -2072,6 +2074,44 @@ export default {
   },
   methods: {
     ...shopMethods,
+    async refreshStorefrontData(force = false) {
+      if (this.isRefreshingStorefront) return;
+
+      this.isRefreshingStorefront = true;
+      this.isLoadingCoupons = true;
+      const options = force ? { force: true } : {};
+
+      try {
+        await Promise.allSettled([
+          catalogStore.getProducts(options).then(products => {
+            this.products = products;
+          }),
+          catalogStore.getMaterials(options).then(materials => {
+            this.materialMasterOptions = Array.isArray(materials) ? materials : [];
+          }),
+          catalogStore.getLandingCollections(options).then(landingCollections => {
+            this.landingCollections = landingCollections;
+          }),
+          catalogStore.getCollections(options).then(allCollections => {
+            this.allCollections = allCollections;
+          }),
+          catalogStore.getDepartments(options),
+          catalogApi.getPublicVouchers().then(voucherPayload => {
+            this.coupons = Array.isArray(voucherPayload && voucherPayload.items) ? voucherPayload.items : [];
+          })
+        ]);
+
+        this.categoryDataDepartment = '';
+        await this.loadDepartmentCategories();
+      } finally {
+        this.isLoadingCoupons = false;
+        this.isRefreshingStorefront = false;
+        this.hasLoadedStorefront = true;
+      }
+    },
+    handleStorefrontFocus() {
+      this.refreshStorefrontData(true);
+    },
     updateCatalogColumnCount() {
       this.catalogColumnCount = catalogColumnCountForViewport();
     },
@@ -2110,32 +2150,18 @@ export default {
   async mounted() {
     this.updateCatalogColumnCount();
     window.addEventListener('resize', this.updateCatalogColumnCount, { passive: true });
+    window.addEventListener('focus', this.handleStorefrontFocus);
     this.syncRouteState();
-    await Promise.allSettled([
-      catalogStore.getProducts().then(products => {
-        this.products = products;
-      }),
-      catalogStore.getMaterials().then(materials => {
-        this.materialMasterOptions = Array.isArray(materials) ? materials : [];
-      }),
-      catalogStore.getLandingCollections().then(landingCollections => {
-        this.landingCollections = landingCollections;
-      }),
-      catalogStore.getCollections().then(allCollections => {
-        this.allCollections = allCollections;
-      }),
-      catalogApi.getPublicVouchers()
-        .then(voucherPayload => {
-          this.coupons = Array.isArray(voucherPayload && voucherPayload.items) ? voucherPayload.items : [];
-        })
-        .finally(() => {
-          this.isLoadingCoupons = false;
-        }),
-      this.loadDepartmentCategories()
-    ]);
+    await this.refreshStorefrontData();
+  },
+  activated() {
+    if (this.hasLoadedStorefront) {
+      this.refreshStorefrontData(true);
+    }
   },
   beforeUnmount() {
     window.removeEventListener('resize', this.updateCatalogColumnCount);
+    window.removeEventListener('focus', this.handleStorefrontFocus);
   }
 };
 </script>

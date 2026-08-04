@@ -1,6 +1,10 @@
 import { DEFAULT_METRICS, DEFAULT_ORDER_STATS } from '../../../helpers/admin/adminDashboardConfig';
 import { catalogStore } from '../../../stores/catalogStore';
 import { primeAdminCustomerSummary } from '../../../stores/adminCustomerDetailStore';
+import {
+  fetchAdminOrderDetail,
+  patchAdminOrderDetailOrder
+} from '../../../stores/adminOrderDetailStore';
 import { getVietnamCurrentYear } from '../../../helpers/dateTime';
 import { adminApi } from '../../../services/adminApi';
 
@@ -117,30 +121,37 @@ setDashboardYear(year) {
       this.dashboardTopProductPage = 1;
       this.loadDashboard();
     },
-async loadOrders() {
-      this.setSectionLoading('orders', true);
-      const response = await adminApi.getAdminOrders({
-        page: this.orderPagination.page,
-        limit: this.orderPagination.limit,
-        search: this.orderSearch.trim(),
-        orderStatus: this.orderStatusFilter,
-        paymentStatus: this.orderPaymentFilter,
-        dateRange: this.orderDateRange
-      });
-      this.orders = Array.isArray(response) ? response : response.items || [];
-      this.orderStats = response && response.stats ? response.stats : DEFAULT_ORDER_STATS();
-      this.orderPagination = response && response.pagination
-        ? response.pagination
-        : {
-            ...this.orderPagination,
-            totalItems: this.orders.length,
-            totalPages: 1
-          };
-      this.syncOrderEdits();
-      this.setSectionLoading('orders', false);
+async loadOrders(options = {}) {
+      const background = Boolean(options.background);
+      if (background && this.isSectionLoading('orders')) return;
+      if (!background) this.setSectionLoading('orders', true);
+      try {
+        const response = await adminApi.getAdminOrders({
+          page: this.orderPagination.page,
+          limit: this.orderPagination.limit,
+          search: this.orderSearch.trim(),
+          orderStatus: this.orderStatusFilter,
+          paymentStatus: this.orderPaymentFilter,
+          dateRange: this.orderDateRange
+        });
+        this.orders = Array.isArray(response) ? response : response.items || [];
+        this.orderStats = response && response.stats ? response.stats : DEFAULT_ORDER_STATS();
+        this.orderPagination = response && response.pagination
+          ? response.pagination
+          : {
+              ...this.orderPagination,
+              totalItems: this.orders.length,
+              totalPages: 1
+            };
+        this.syncOrderEdits();
+      } finally {
+        if (!background) this.setSectionLoading('orders', false);
+      }
     },
-async loadRequests() {
-      this.setSectionLoading('requests', true);
+async loadRequests(options = {}) {
+      const background = Boolean(options.background);
+      if (background && this.isSectionLoading('requests')) return;
+      if (!background) this.setSectionLoading('requests', true);
       try {
         const [returnPayload, refundPayload] = await Promise.all([
           adminApi.getAdminReturnRequests({
@@ -156,7 +167,7 @@ async loadRequests() {
         this.returnRequests = returnPayload && Array.isArray(returnPayload.items) ? returnPayload.items : [];
         this.refundRequests = refundPayload && Array.isArray(refundPayload.items) ? refundPayload.items : [];
       } finally {
-        this.setSectionLoading('requests', false);
+        if (!background) this.setSectionLoading('requests', false);
       }
     },
 async loadBankTransferPayments() {
@@ -172,14 +183,19 @@ async loadBankTransferPayments() {
       }
     },
 async confirmBankTransferPayment(order, payload = {}) {
-      if (!order || !order.id) return;
+      if (!order || !order.id) return null;
 
       const response = await adminApi.confirmAdminBankTransferPayment(order.id, payload);
       if (response && response.order) {
+        patchAdminOrderDetailOrder(response.order);
+        await fetchAdminOrderDetail(order.id, { force: true });
+        patchAdminOrderDetailOrder(response.order);
         this.bankTransferPayments = this.bankTransferPayments.filter(item => item.id !== order.id);
         this.loadOrders();
         this.loadDashboard();
+        return response.order;
       }
+      return null;
     },
 async rejectBankTransferPayment(order, payload = {}) {
       if (!order || !order.id) return;
@@ -187,6 +203,9 @@ async rejectBankTransferPayment(order, payload = {}) {
       const response = await adminApi.rejectAdminBankTransferPayment(order.id, payload);
       const updated = response && response.order ? response.order : response;
       if (updated) {
+        patchAdminOrderDetailOrder(updated);
+        await fetchAdminOrderDetail(order.id, { force: true });
+        patchAdminOrderDetailOrder(updated);
         this.bankTransferPayments = this.bankTransferPayments.filter(item => item.id !== order.id);
         this.loadOrders();
         this.loadDashboard();

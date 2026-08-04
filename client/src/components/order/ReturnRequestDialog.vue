@@ -119,7 +119,7 @@ export default {
       productImage: item.productImage,
       colorName: item.colorName,
       sizeLabel: item.sizeLabel,
-      maxQuantity: Math.max(0, Number(item.quantity || 0) - Number(item.refundedQuantity || 0)),
+      maxQuantity: Math.max(0, Number(item.returnableQuantity || 0)),
       selected: false,
       quantity: 1,
       reason: REASONS[0].value,

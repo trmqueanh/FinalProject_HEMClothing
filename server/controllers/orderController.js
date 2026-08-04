@@ -30,6 +30,7 @@ const {
 const { expirePendingBankTransfers } = require('../services/bankTransferExpirationService');
 const {
   INVENTORY_HOLD_ORDER_STATUSES: INVENTORY_HOLD_STATUSES,
+  OPEN_RETURN_STATUSES,
   ORDER_STATUS,
   ORDER_STATUSES,
   ORDER_STATUS_TRANSITIONS,
@@ -424,18 +425,22 @@ const fetchReturnRequestsByOrderIds = async (db, orderIds = []) => {
     return new Map();
   }
   const rows = await returnRefundModel.listLatestReturnRowsByOrderIds(db, orderIds);
+  const openReturnOrderIds = new Set(
+    rows
+      .filter(row => OPEN_RETURN_STATUSES.includes(String(row.return_status || '').toLowerCase()))
+      .map(row => String(row.order_id || ''))
+      .filter(Boolean)
+  );
   return rows.reduce((map, row) => {
     const orderId = String(row.order_id || '');
     if (orderId && !map.has(orderId)) {
-      map.set(orderId, serializeReturnRequestRow(row));
+      map.set(orderId, {
+        ...serializeReturnRequestRow(row),
+        hasActiveReturn: openReturnOrderIds.has(orderId)
+      });
     }
     return map;
   }, new Map());
-};
-
-const fetchReturnRequestByOrderId = async (db, orderId) => {
-  const requests = await fetchReturnRequestsByOrderIds(db, [orderId]);
-  return requests.get(String(orderId)) || null;
 };
 
 const normalizeRefundRequestStatus = value => {
@@ -549,6 +554,7 @@ const serializeOrderItemRow = row => {
     netLineTotal: toNumber(row.net_line_total),
     refundedQuantity: Number(row.refunded_quantity || 0),
     refundedAmount: toNumber(row.refunded_amount),
+    returnableQuantity: Number(row.returnable_quantity || 0),
     sizeLabel: String(row.size_label || ''),
     colorName: String(row.color_name || ''),
     productImage: row.resolved_product_image || row.product_image || null,
@@ -1024,13 +1030,6 @@ const autoCompleteDeliveredOrders = async (db, options = {}) => {
 
     if (serializedOrder) {
       completedOrders.push(serializedOrder);
-      await notifyOrderStatusChanged(
-        null,
-        db,
-        serializedOrder,
-        'completed',
-        'Automatically completed after the 3-day confirmation window expired.'
-      ).catch(() => null);
     }
   }
 
@@ -1088,9 +1087,11 @@ const customerOrderController = createCustomerOrderController({
   fetchOrderTimeline,
   fetchRefundRequestByOrderId,
   fetchRefundRequestsByOrderIds,
-  fetchReturnRequestByOrderId,
   fetchReturnRequestsByOrderIds,
+  fetchReturnPayloadsByOrderId: returnRefundController.fetchReturnPayloadsByOrderId,
   getDb,
+  hasOpenReturnForOrder: (db, orderId) =>
+    returnRefundModel.hasReturnWithStatuses(db, orderId, OPEN_RETURN_STATUSES),
   isValidUuid,
   normalizeOrderStatusValue,
   notifyOrderStatusChanged,
@@ -1115,7 +1116,7 @@ const adminOrderController = createAdminOrderController({
   buildBankTransferPaymentDetails,
   buildPaginationPayload,
   ensureOrderStatusTransition,
-  fetchLatestAdminReturnPayloadByOrderId: returnRefundController.fetchLatestAdminReturnPayloadByOrderId,
+  fetchReturnPayloadsByOrderId: returnRefundController.fetchReturnPayloadsByOrderId,
   fetchOrderItemsByOrderId,
   fetchOrderTimeline,
   fetchRefundRequestByOrderId,

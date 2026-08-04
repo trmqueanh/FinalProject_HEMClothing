@@ -86,6 +86,13 @@
           </div>
 
           <div class="profile-order-detail__aftercare">
+            <ReturnHistory
+              v-if="selectedOrder.returnRequests && selectedOrder.returnRequests.length > 1"
+              :returns="selectedOrder.returnRequests"
+              :format-label="formatLabel"
+              :format-date="formatDate"
+              :format-currency="formatCurrency"
+            />
             <template v-if="selectedOrder.returnRequest">
               <div class="profile-order-detail__aftercare-header">
                 <div>
@@ -256,6 +263,7 @@ import BankTransferPaymentNotice from './BankTransferPaymentNotice.vue';
 import OrderLineItem from './OrderLineItem.vue';
 import OrderTimeline from './OrderTimeline.vue';
 import RefundAccountForm from './RefundAccountForm.vue';
+import ReturnHistory from './ReturnHistory.vue';
 
 export default {
   name: 'OrderDetail',
@@ -263,7 +271,8 @@ export default {
     BankTransferPaymentNotice,
     OrderLineItem,
     OrderTimeline,
-    RefundAccountForm
+    RefundAccountForm,
+    ReturnHistory
   },
   props: {
     selectedOrder: {
@@ -350,17 +359,21 @@ export default {
     },
     canEditRefundAccount() {
       const request = this.selectedOrder && this.selectedOrder.returnRequest;
+      const refundStatus = String(this.refundDetails && this.refundDetails.status || '').toLowerCase();
       if (request) {
-        const editableStatuses = new Set(['awaiting_return', 'received', 'inspecting', 'inspection_approved', 'refund_pending']);
-        const hasProcessingRefund = (request.refunds || []).some(refund =>
-          ['processing', 'completed'].includes(String(refund.status || '').toLowerCase())
-        );
-        return editableStatuses.has(String(request.returnStatus || request.status || '').toLowerCase()) && !hasProcessingRefund;
+        const returnStatus = String(request.returnStatus || request.status || '').toLowerCase();
+        return returnStatus === 'refund_pending' && ['pending', 'failed'].includes(refundStatus);
       }
 
-      return ['pending', 'failed'].includes(String(this.refundDetails && this.refundDetails.status || '').toLowerCase());
+      return ['pending', 'failed'].includes(refundStatus);
     },
     shouldShowRefundAccount() {
+      const request = this.selectedOrder && this.selectedOrder.returnRequest;
+      if (request) {
+        const returnStatus = String(request.returnStatus || request.status || '').toLowerCase();
+        if (!['refund_pending', 'completed'].includes(returnStatus)) return false;
+      }
+
       const account = this.refundAccount;
       const accountStatus = String(account.status || '').toLowerCase();
       const hasAccountDetails = Boolean(

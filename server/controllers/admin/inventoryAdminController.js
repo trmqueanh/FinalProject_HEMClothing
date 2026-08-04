@@ -3,6 +3,7 @@ module.exports = ({
   LOW_STOCK_THRESHOLD,
   buildPaginationPayload,
   getDb,
+  invalidateProductListCache = () => {},
   inventoryModel,
   parseListQuery,
   sendError
@@ -70,6 +71,7 @@ controller.importInventory = async (req, res) => {
       return res.status(404).json({ message: 'Inventory variant not found.' });
     }
 
+    invalidateProductListCache();
     return res.json({
       message: 'Inventory imported successfully.',
       variant: {

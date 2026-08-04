@@ -27,6 +27,7 @@
                 <option value="paid">Paid</option>
                 <option value="payment_expired">Payment expired</option>
                 <option value="payment_cancelled">Payment cancelled</option>
+                <option value="payment_rejected">Payment rejected</option>
                 <option value="refund_pending">Refund pending</option>
                 <option value="refunded">Refunded</option>
               </select>

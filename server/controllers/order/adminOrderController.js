@@ -12,7 +12,7 @@ module.exports = ({
   buildBankTransferPaymentDetails,
   buildPaginationPayload,
   ensureOrderStatusTransition,
-  fetchLatestAdminReturnPayloadByOrderId,
+  fetchReturnPayloadsByOrderId,
   fetchOrderItemsByOrderId,
   fetchOrderTimeline,
   fetchRefundRequestByOrderId,
@@ -292,14 +292,15 @@ module.exports = ({
       const db = getDb(req);
       const orderId = String(req.params.orderId || '').trim();
       if (!isValidUuid(orderId)) return res.status(400).json({ message: 'Order id is required.' });
-      const [orderRow, items, timeline, returnRequest, refundRequest] = await Promise.all([
+      const [orderRow, items, timeline, returnRequests, refundRequest] = await Promise.all([
         orderModel.findAdminOrder(db, orderId),
         fetchOrderItemsByOrderId(db, orderId),
         fetchOrderTimeline(db, orderId),
-        fetchLatestAdminReturnPayloadByOrderId(db, orderId),
+        fetchReturnPayloadsByOrderId(db, orderId),
         fetchRefundRequestByOrderId(db, orderId)
       ]);
       if (!orderRow) return res.status(404).json({ message: 'Order not found.' });
+      const returnRequest = returnRequests[0] || null;
       return res.json({
         order: serializeOrderRow({
           ...orderRow,
@@ -308,6 +309,7 @@ module.exports = ({
         items,
         timeline,
         returnRequest,
+        returnRequests,
         refundRequest
       });
     } catch (error) {

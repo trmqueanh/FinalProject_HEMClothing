@@ -15,7 +15,7 @@
       <span></span>
       <div>
         <strong>{{ formatOrderTimelineTitle(event) }}</strong>
-        <p>{{ formatTimelineRole(event.changedByRole) }} · {{ formatDate(event.createdAt) }}</p>
+        <p>{{ formatTimelineRole(event) }} · {{ formatDate(event.createdAt) }}</p>
         <small v-if="formatTimelineNote(event)">{{ formatTimelineNote(event) }}</small>
       </div>
     </div>

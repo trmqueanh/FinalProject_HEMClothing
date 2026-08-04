@@ -28,7 +28,7 @@
         </article>
       </section>
 
-      <section class="return-detail__section return-detail__refund-account">
+      <section v-if="shouldShowRefundAccount" class="return-detail__section return-detail__refund-account">
         <div class="return-detail__section-heading">
           <div>
             <p class="eyebrow">Refund information</p>
@@ -36,10 +36,6 @@
           </div>
           <span class="return-detail__status">{{ hasSavedAccount ? 'Saved' : 'Not provided' }}</span>
         </div>
-
-        <p v-if="!canProvideAccount && refundAccount.status === 'not_provided'" class="return-detail__note">
-          Bank account information becomes available after HEM approves this return.
-        </p>
 
         <div v-if="hasSavedAccount" class="return-detail__account-summary">
           <div><span>Bank</span><strong>{{ refundAccount.bankName }}</strong></div>
@@ -127,7 +123,7 @@ const BANKS = [
   { code: 'OCB', name: 'OCB' }
 ];
 
-const ACCOUNT_RETURN_STATUSES = new Set(['awaiting_return', 'received', 'inspecting', 'inspection_approved', 'refund_pending']);
+const ACCOUNT_RETURN_STATUSES = new Set(['refund_pending']);
 
 export default {
   name: 'ReturnDetail',
@@ -168,8 +164,17 @@ export default {
       );
     },
     canProvideAccount() {
-      return ACCOUNT_RETURN_STATUSES.has(String(this.returnRequest && this.returnRequest.returnStatus || '').toLowerCase()) &&
-        !(this.returnRequest && this.returnRequest.refunds || []).some(refund => ['processing', 'completed'].includes(refund.status));
+      const returnStatus = String(this.returnRequest && this.returnRequest.returnStatus || '').toLowerCase();
+      const refunds = this.returnRequest && this.returnRequest.refunds || [];
+      const latestRefund = refunds[refunds.length - 1];
+      const refundStatus = String(latestRefund && latestRefund.status || '').toLowerCase();
+      return ACCOUNT_RETURN_STATUSES.has(returnStatus) && ['pending', 'failed'].includes(refundStatus);
+    },
+    shouldShowRefundAccount() {
+      const returnStatus = String(this.returnRequest && this.returnRequest.returnStatus || '').toLowerCase();
+      const accountStatus = String(this.refundAccount.status || '').toLowerCase();
+      return ['refund_pending', 'completed'].includes(returnStatus) &&
+        (this.canProvideAccount || this.hasSavedAccount || accountStatus === 'rejected');
     },
     resolvedBankName() {
       return this.form.bankName === 'Other bank' ? this.form.customBankName.trim() : this.form.bankName;

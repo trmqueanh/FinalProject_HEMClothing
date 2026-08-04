@@ -514,8 +514,12 @@ const insertOrderStatusHistory = async (client, {
   for (let index = 0; index < statuses.length; index += 1) {
     const newStatus = statuses[index];
     const oldStatus = index === 0 ? null : statuses[index - 1];
-    const changedByRole = index === 0 || newStatus === 'completed' ? 'user' : 'admin';
-    const changedBy = changedByRole === 'admin' ? adminId : userId;
+    const changedByRole = index === 0
+      ? 'user'
+      : (newStatus === 'completed' ? 'system' : 'admin');
+    const changedBy = changedByRole === 'admin'
+      ? adminId
+      : (changedByRole === 'user' ? userId : null);
 
     await client.query(
       `
@@ -536,7 +540,11 @@ const insertOrderStatusHistory = async (client, {
         newStatus,
         changedBy || null,
         changedByRole,
-        newStatus === 'pending' ? 'Demo order placed.' : `Demo order moved to ${newStatus}.`,
+        newStatus === 'pending'
+          ? 'Demo order placed.'
+          : (newStatus === 'completed'
+              ? 'Automatically completed after the 3-day confirmation window expired.'
+              : `Demo order moved to ${newStatus}.`),
         addHours(createdAt, index * 8)
       ]
     );

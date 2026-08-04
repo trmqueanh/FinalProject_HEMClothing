@@ -90,6 +90,7 @@ formatOrderPaymentStatus(value) {
         paid: 'Paid',
         payment_expired: 'Expired',
         payment_cancelled: 'Cancelled',
+        payment_rejected: 'Rejected',
         partially_refunded: 'Partial refund',
         partial_refund: 'Partial refund',
         refund_pending: 'Refund pending',
@@ -328,9 +329,21 @@ syncSelectedAdminOrderDetailReturnRequest(returnRequest) {
         return;
       }
 
+      const normalizedReturn = this.normalizeAdminReturnRequest(returnRequest);
+      const returnHistory = this.selectedAdminOrderDetail.returnRequests || [];
+      const hasHistoryEntry = returnHistory.some(request => String(request.id) === String(returnRequest.id));
+      const refunds = Array.isArray(normalizedReturn.refunds) ? normalizedReturn.refunds : [];
       this.selectedAdminOrderDetail = {
         ...this.selectedAdminOrderDetail,
-        returnRequest: this.normalizeAdminReturnRequest(returnRequest)
+        returnRequest: normalizedReturn,
+        returnRequests: hasHistoryEntry
+          ? returnHistory.map(request =>
+          String(request.id) === String(returnRequest.id)
+            ? normalizedReturn
+            : request
+          )
+          : [normalizedReturn, ...returnHistory],
+        refundRequest: refunds.length ? refunds[refunds.length - 1] : null
       };
     },
 syncSelectedAdminOrderDetailRefundRequest(refundRequest) {
@@ -449,6 +462,16 @@ hasRefundAccount(returnRequest) {
         (account.accountNumber || account.maskedAccountNumber) &&
         account.accountHolder
       );
+    },
+shouldShowReturnRefundAccount(returnRequest, refundRequest) {
+      const status = String(returnRequest && returnRequest.returnStatus || '').toLowerCase();
+      return !refundRequest && [
+        'awaiting_return',
+        'received',
+        'inspecting',
+        'inspection_approved',
+        'refund_pending'
+      ].includes(status);
     },
 canRejectRefundRequest(refundRequest) {
       return ['pending', 'processing'].includes(String(refundRequest && refundRequest.status || '').toLowerCase());

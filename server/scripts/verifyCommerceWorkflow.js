@@ -26,6 +26,22 @@ const requestJson = async (baseUrl, path, token, method = 'GET', body = null) =>
   return payload;
 };
 
+const requestJsonWithStatus = async (baseUrl, path, token, method = 'GET', body = null) => {
+  process.stdout.write(`[verify] ${method} ${path}\n`);
+  const response = await fetch(`${baseUrl}${path}`, {
+    method,
+    signal: AbortSignal.timeout(30000),
+    headers: {
+      Authorization: `Bearer ${token}`,
+      ...(body ? { 'Content-Type': 'application/json' } : {})
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  const payload = await response.json().catch(() => ({}));
+  process.stdout.write(`[verify] ${response.status} ${method} ${path}\n`);
+  return { status: response.status, payload };
+};
+
 const insertOrder = async (db, userId, amount, status) => {
   const result = await db.query(
     `
@@ -39,7 +55,7 @@ const insertOrder = async (db, userId, amount, status) => {
         $1, $2, 0, 0, $2, 'bank_transfer', 'paid', $2, $3::varchar,
         'Workflow Verification', '0900000000', 'Ho Chi Minh City', 'District 1',
         'Ben Nghe', 'Verification only', 'COMMERCE WORKFLOW VERIFICATION',
-        CASE WHEN $3::varchar = 'completed' THEN now() ELSE null END,
+        CASE WHEN $3::varchar IN ('delivered', 'completed') THEN now() ELSE null END,
         CASE WHEN $3::varchar = 'completed' THEN now() ELSE null END,
         now(), now()
       ) RETURNING *
@@ -130,11 +146,11 @@ const main = async () => {
       [cancellationVoucherId, customer.id, cancellationOrder.id, cancellationVoucherCode, unitPrice]
     );
 
-    const returnOrder = await insertOrder(setup, customer.id, unitPrice * 3, 'completed');
+    const returnOrder = await insertOrder(setup, customer.id, unitPrice * 3, 'delivered');
     orderIds.push(returnOrder.id);
-    const returnOrderItem = await insertOrderItem(setup, returnOrder, inventory, 3, 0, unitPrice);
+    const returnOrderItem = await insertOrderItem(setup, returnOrder, inventory, 3, 3, unitPrice);
     await setup.query(
-      `UPDATE product_inventory SET stock_quantity = stock_quantity - 3, sold_quantity = sold_quantity + 3 WHERE id = $1`,
+      `UPDATE product_inventory SET reserved_quantity = reserved_quantity + 3 WHERE id = $1`,
       [inventory.id]
     );
 
@@ -198,6 +214,13 @@ const main = async () => {
     const returnRequestId = createdReturn.returnRequest.id;
     returnRequestIds.push(returnRequestId);
     const returnItemId = createdReturn.returnRequest.items[0].id;
+    const blockedConfirmation = await requestJsonWithStatus(
+      baseUrl,
+      `/orders/${returnOrder.id}/confirm-received`,
+      customerToken,
+      'PUT'
+    );
+    assert.equal(blockedConfirmation.status, 409);
     const approved = await requestJson(baseUrl, `/admin/return-requests/${returnRequestId}/approve`, adminToken, 'PUT', {
       items: [{ returnItemId, approvedQuantity: 1 }]
     });
@@ -207,7 +230,7 @@ const main = async () => {
     });
     assert.equal(received.returnRequest.returnStatus, 'received');
     const beforeInspection = await setup.query(`SELECT stock_quantity, sold_quantity FROM product_inventory WHERE id = $1`, [inventory.id]);
-    assert.deepEqual(beforeInspection.rows[0], { stock_quantity: originalInventory.stock - 3, sold_quantity: originalInventory.sold + 3 });
+    assert.deepEqual(beforeInspection.rows[0], { stock_quantity: originalInventory.stock, sold_quantity: originalInventory.sold });
     await requestJson(baseUrl, `/admin/return-requests/${returnRequestId}/inspect/start`, adminToken, 'PUT', {});
     const inspected = await requestJson(baseUrl, `/admin/return-requests/${returnRequestId}/inspect`, adminToken, 'PUT', {
       items: [{ returnItemId, acceptedQuantity: 1, rejectedQuantity: 0, restockable: true, conditionCode: 'resellable' }]
@@ -216,7 +239,7 @@ const main = async () => {
     assert.equal(inspected.refund.refundType, 'product_return');
     assert.equal(inspected.refund.requestedAmount, unitPrice);
     const afterInspection = await setup.query(`SELECT stock_quantity, sold_quantity FROM product_inventory WHERE id = $1`, [inventory.id]);
-    assert.deepEqual(afterInspection.rows[0], { stock_quantity: originalInventory.stock - 2, sold_quantity: originalInventory.sold + 2 });
+    assert.deepEqual(afterInspection.rows[0], { stock_quantity: originalInventory.stock, sold_quantity: originalInventory.sold });
 
     await requestJson(baseUrl, `/orders/returns/${returnRequestId}/refund-account`, customerToken, 'PUT', {
       bankCode: 'VCB',
@@ -230,7 +253,17 @@ const main = async () => {
       transactionReference: `VERIFY-${Date.now()}`
     });
     assert.equal(completed.refund.status, 'completed');
+    assert.equal(completed.order.orderStatus, 'completed');
     assert.equal(completed.order.paymentStatus, 'partially_refunded');
+    const inventoryAfterReturnCompletion = await setup.query(
+      `SELECT stock_quantity, reserved_quantity, sold_quantity FROM product_inventory WHERE id = $1`,
+      [inventory.id]
+    );
+    assert.deepEqual(inventoryAfterReturnCompletion.rows[0], {
+      stock_quantity: originalInventory.stock - 2,
+      reserved_quantity: originalInventory.reserved,
+      sold_quantity: originalInventory.sold + 2
+    });
     const completedReturn = await requestJson(baseUrl, `/orders/returns/${returnRequestId}`, customerToken);
     assert.equal(completedReturn.returnRequest.returnStatus, 'completed');
 
@@ -297,6 +330,8 @@ const main = async () => {
       postShippingVoucherRetained: true,
       cancellationIdempotency: true,
       noInventoryBeforeInspection: true,
+      returnBlocksReceivedConfirmation: true,
+      refundCompletionCompletesDeliveredOrder: true,
       partialReturnRefund: true,
       manualRefundCompletion: true,
       partialPaymentStatus: true,

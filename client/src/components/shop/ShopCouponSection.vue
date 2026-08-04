@@ -1,6 +1,6 @@
 <template>
   <section class="shop-coupons" aria-labelledby="shop-coupons-title">
-    <h2 id="shop-coupons-title">Use your online discount code now!</h2>
+    <h2 id="shop-coupons-title">Use online discount code now!</h2>
 
     <p v-if="isLoading" class="shop-coupons__state">Loading coupon codes...</p>
 

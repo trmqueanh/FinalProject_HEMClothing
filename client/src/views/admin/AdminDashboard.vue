@@ -139,6 +139,7 @@ export default {
 
     return {
       currentSection: initialSection,
+      hasActivatedOnce: false,
       metrics: DEFAULT_METRICS(),
       hasLoadedDashboard: false,
       dashboardYear: getVietnamCurrentYear(),
@@ -799,6 +800,10 @@ export default {
   },
   activated() {
     this.updateAdminTitle();
+    if (this.hasActivatedOnce && this.currentSection === 'vouchers') {
+      this.loadVouchers();
+    }
+    this.hasActivatedOnce = true;
     this.restoreAdminListPosition(this.currentSection);
   }
 };

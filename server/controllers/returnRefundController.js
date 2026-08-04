@@ -3,6 +3,7 @@ const { isValidUuid } = require('../utils/authUtils');
 const orderModel = require('../models/orderModel');
 const returnRefundModel = require('../models/returnRefundModel');
 const voucherModel = require('../models/voucherModel');
+const { syncProductInventorySummary } = require('../utils/inventoryUtils');
 const {
   invalidateDashboardCache
 } = require('./admin/dashboardController');
@@ -21,12 +22,13 @@ const {
   notifyOrderStatusChanged,
   notifyRefundAccountSubmitted,
   notifyRefundCompleted,
+  notifyRefundFailed,
   notifyRefundPending,
   notifyReturnRequested,
   notifyReturnStatusChanged
 } = require('../services/notificationEmailService');
 const {
-  ACTIVE_RETURN_STATUSES,
+  OPEN_RETURN_STATUSES,
   ORDER_STATUS,
   PAYMENT_STATUS,
   REFUND_STATUS,
@@ -213,24 +215,37 @@ const fetchReturnPayload = async (db, returnRequestId, userId = null) => {
   );
 };
 
-const fetchLatestAdminReturnPayloadByOrderId = async (db, orderId) => {
+const fetchReturnPayloadsByOrderId = async (db, orderId, userId = null) => {
   const result = await returnRefundModel.listReturnPayloadRows(db, {
-    userId: null,
+    userId,
     orderId,
     status: '',
     search: '',
-    limit: 1,
+    limit: 100,
     offset: 0
   });
-  const request = result.requests[0];
-  if (!request) return null;
+  const itemsByRequestId = result.items.reduce((groups, row) => {
+    const requestId = String(row.return_request_id);
+    if (!groups.has(requestId)) groups.set(requestId, []);
+    groups.get(requestId).push(serializeReturnItem(row));
+    return groups;
+  }, new Map());
+  const refundsByRequestId = result.refunds.reduce((groups, row) => {
+    const requestId = String(row.return_request_id);
+    if (!groups.has(requestId)) groups.set(requestId, []);
+    groups.get(requestId).push(serializeRefund(row, !userId));
+    return groups;
+  }, new Map());
 
-  return serializeReturn(
-    request,
-    result.items.map(serializeReturnItem),
-    result.refunds.map(row => serializeRefund(row, true)),
-    true
-  );
+  return result.requests.map(request => {
+    const requestId = String(request.id);
+    return serializeReturn(
+      request,
+      itemsByRequestId.get(requestId) || [],
+      refundsByRequestId.get(requestId) || [],
+      !userId
+    );
+  });
 };
 
 const normalizeRefundAccount = body => {
@@ -286,6 +301,60 @@ const releaseCancelledInventory = async (client, orderId, actorId) => {
 const refundRemainingAmount = async (client, order) => {
   const reservedAmount = await returnRefundModel.sumReservedRefundAmount(client, order.id);
   return roundMoney(paidAmountForOrder(order) - reservedAmount);
+};
+
+const completeDeliveredOrder = async (client, orderId, actorId, note) => {
+  const order = await orderModel.findLockedOrder(client, orderId);
+  if (!order || String(order.order_status || '').toLowerCase() !== ORDER_STATUS.DELIVERED) {
+    return null;
+  }
+  if (await returnRefundModel.hasReturnWithStatuses(client, orderId, OPEN_RETURN_STATUSES)) {
+    return null;
+  }
+
+  const items = await orderModel.listInventoryRowsForUpdate(client, orderId);
+  for (const item of items) {
+    const quantity = Math.min(
+      Math.max(0, numberValue(item.reserved_quantity)),
+      Math.max(0, numberValue(item.quantity))
+    );
+    if (quantity <= 0) continue;
+    if (!item.variant_id) {
+      const error = new Error(`Cannot complete order because inventory is missing for ${item.product_name || 'an item'}.`);
+      error.statusCode = 409;
+      throw error;
+    }
+
+    const finalized = await orderModel.finalizeInventoryItem(client, item.variant_id, quantity);
+    if (!finalized.rowCount) {
+      const error = new Error(`Cannot complete order because inventory is not reserved for ${item.product_name || 'an item'}.`);
+      error.statusCode = 409;
+      throw error;
+    }
+
+    await orderModel.updateOrderItemReservedQuantity(client, item.id, -quantity);
+    await orderModel.insertInventoryLog(client, {
+      item: {
+        productId: item.product_id,
+        variantId: item.variant_id
+      },
+      type: 'sold',
+      quantity,
+      note: `Finalized order ${orderId} after return workflow`,
+      userId: actorId
+    });
+    await syncProductInventorySummary(client, item.product_id);
+  }
+
+  await orderModel.appendStatusHistory(client, {
+    orderId,
+    oldStatus: ORDER_STATUS.DELIVERED,
+    newStatus: ORDER_STATUS.COMPLETED,
+    changedBy: actorId,
+    changedByRole: 'admin',
+    note
+  });
+  return orderModel.completeOrder(client, orderId);
 };
 
 const cancelOrder = async (
@@ -400,7 +469,9 @@ const cancelOrder = async (
       refund: serializeRefund(refund),
       voucherReleased
     });
-    notifyOrderStatusChanged(req, db, orderPayload, 'cancelled', reason).catch(() => null);
+    if (adminAction) {
+      notifyOrderStatusChanged(req, db, orderPayload, 'cancelled', reason).catch(() => null);
+    }
     if (refund && createdRefund) notifyRefundPending(req, db, orderPayload, refund).catch(() => null);
     return response;
   } catch (error) {
@@ -480,14 +551,12 @@ const createReturn = async (req, res) => {
     if (!Number.isFinite(deliveredAt) || Date.now() >= deliveredAt + RETURN_WINDOW_MS) {
       return rollbackAndRespond(client, res, 409, 'The return request window has expired.');
     }
+    if (await returnRefundModel.hasReturnWithStatuses(client, orderId, OPEN_RETURN_STATUSES)) {
+      return rollbackAndRespond(client, res, 409, 'Wait for the current return request to finish before creating another one.');
+    }
 
     const ids = items.map(item => item.orderItemId);
-    const orderItems = await returnRefundModel.findReturnableOrderItems(
-      client,
-      orderId,
-      ids,
-      ACTIVE_RETURN_STATUSES
-    );
+    const orderItems = await returnRefundModel.findReturnableOrderItems(client, orderId, ids);
     if (orderItems.length !== ids.length) {
       return rollbackAndRespond(client, res, 404, 'One or more selected order items do not belong to this order.');
     }
@@ -543,7 +612,7 @@ const saveCustomerRefundAccount = async (req, res) => {
     });
     if (!updated) {
       return res.status(409).json({
-        message: 'Refund account details can only be updated for your approved return before refund processing starts.'
+        message: 'Refund account details can only be updated after the returned products pass inspection and before refund processing starts.'
       });
     }
     await returnRefundModel.syncReturnRefundAccount(db, {
@@ -709,6 +778,7 @@ const rejectReturn = async (req, res) => {
   const reason = textValue(req.body && (req.body.rejectionReason || req.body.reason), 1000);
   if (!reason) return res.status(400).json({ message: 'Rejection reason is required.' });
   const client = await db.connect();
+  let completedOrder;
   try {
     await client.query('BEGIN');
     const returnRequest = await returnRefundModel.findReturnForUpdate(client, id);
@@ -718,10 +788,19 @@ const rejectReturn = async (req, res) => {
       reason,
       adminNote: textValue(req.body.adminNote, 1000) || null
     });
+    completedOrder = await completeDeliveredOrder(
+      client,
+      returnRequest.order_id,
+      req.authUser.id,
+      'Order completed after the return request was rejected.'
+    );
     await client.query('COMMIT');
-    return res.json({
-      returnRequest: await updateReturnStatusEmail(req, db, id, RETURN_STATUS.REJECTED, reason)
+    const order = completedOrder ? await loadOrderForEmail(db, returnRequest.order_id) : null;
+    const response = res.json({
+      returnRequest: await updateReturnStatusEmail(req, db, id, RETURN_STATUS.REJECTED, reason),
+      order: serializeOrder(order)
     });
+    return response;
   } catch (error) {
     await client.query('ROLLBACK').catch(() => null);
     return sendError(res, error);
@@ -763,7 +842,7 @@ const receiveReturn = async (req, res) => {
     });
     await client.query('COMMIT');
     return res.json({
-      returnRequest: await updateReturnStatusEmail(req, db, id, RETURN_STATUS.RECEIVED, req.body.adminNote)
+      returnRequest: await fetchReturnPayload(db, id)
     });
   } catch (error) {
     await client.query('ROLLBACK').catch(() => null);
@@ -785,13 +864,7 @@ const startInspection = async (req, res) => {
     });
     await client.query('COMMIT');
     return res.json({
-      returnRequest: await updateReturnStatusEmail(
-        req,
-        db,
-        id,
-        RETURN_STATUS.INSPECTING,
-        req.body && req.body.adminNote
-      )
+      returnRequest: await fetchReturnPayload(db, id)
     });
   } catch (error) {
     await client.query('ROLLBACK').catch(() => null);
@@ -824,6 +897,7 @@ const inspectReturn = async (req, res) => {
   const client = await db.connect();
   let refund = null;
   let createdRefund = false;
+  let completedOrder = null;
   try {
     await client.query('BEGIN');
     const request = await returnRefundModel.findReturnForUpdate(client, id, true);
@@ -888,6 +962,12 @@ const inspectReturn = async (req, res) => {
         actorId: req.authUser.id,
         reason: textValue(req.body.rejectionReason, 1000) || 'Returned products did not pass inspection.'
       });
+      completedOrder = await completeDeliveredOrder(
+        client,
+        request.order_id,
+        req.authUser.id,
+        'Order completed after the returned products failed inspection.'
+      );
     } else {
       assertReturnTransition(RETURN_STATUS.INSPECTING, RETURN_STATUS.INSPECTION_APPROVED);
       await returnRefundModel.updateReturnStatus(client, id, RETURN_STATUS.INSPECTION_APPROVED, {
@@ -909,18 +989,25 @@ const inspectReturn = async (req, res) => {
       await refreshOrderPaymentStatus(client, request.order_id);
     }
     await client.query('COMMIT');
-    const payload = await updateReturnStatusEmail(
-      req,
-      db,
-      id,
-      acceptedTotal > 0 ? RETURN_STATUS.INSPECTION_APPROVED : RETURN_STATUS.INSPECTION_REJECTED,
-      req.body.adminNote
-    );
+    const payload = acceptedTotal > 0
+      ? await fetchReturnPayload(db, id)
+      : await updateReturnStatusEmail(
+          req,
+          db,
+          id,
+          RETURN_STATUS.INSPECTION_REJECTED,
+          req.body.adminNote
+        );
     if (refund && createdRefund) {
       const order = await loadOrderForEmail(db, request.order_id);
       await notifyRefundPending(req, db, order, refund).catch(() => null);
     }
-    return res.json({ returnRequest: payload, refund: serializeRefund(refund) });
+    const order = completedOrder ? await loadOrderForEmail(db, request.order_id) : null;
+    return res.json({
+      returnRequest: payload,
+      refund: serializeRefund(refund),
+      order: serializeOrder(order)
+    });
   } catch (error) {
     await client.query('ROLLBACK').catch(() => null);
     return sendError(res, error);
@@ -1007,6 +1094,12 @@ const changeRefundStatus = async (req, res, nextStatus) => {
           RETURN_STATUS.COMPLETED
         );
       }
+      await completeDeliveredOrder(
+        client,
+        refund.order_id,
+        req.authUser.id,
+        'Order completed after the return refund was completed.'
+      );
     }
     await refreshOrderPaymentStatus(client, refund.order_id);
     await client.query('COMMIT');
@@ -1018,10 +1111,8 @@ const changeRefundStatus = async (req, res, nextStatus) => {
     if (nextStatus === REFUND_STATUS.COMPLETED) {
       notifyRefundCompleted(req, db, order, updatedRefund).catch(() => null);
     }
-    if (nextStatus === REFUND_STATUS.COMPLETED && updatedRefund.return_request_id) {
-      fetchReturnPayload(db, updatedRefund.return_request_id)
-        .then(returnPayload => notifyReturnStatusChanged(req, db, returnPayload, RETURN_STATUS.COMPLETED))
-        .catch(() => null);
+    if (nextStatus === REFUND_STATUS.FAILED) {
+      notifyRefundFailed(req, db, order, updatedRefund).catch(() => null);
     }
     return response;
   } catch (error) {
@@ -1037,7 +1128,7 @@ module.exports = {
   completeRefund: (req, res) => changeRefundStatus(req, res, REFUND_STATUS.COMPLETED),
   createReturn,
   failRefund: (req, res) => changeRefundStatus(req, res, REFUND_STATUS.FAILED),
-  fetchLatestAdminReturnPayloadByOrderId,
+  fetchReturnPayloadsByOrderId,
   inspectReturn,
   listAdminReturns: (req, res) => listReturns(req, res, true),
   listCustomerReturns: (req, res) => listReturns(req, res, false),

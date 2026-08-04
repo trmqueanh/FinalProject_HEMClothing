@@ -2,6 +2,53 @@ import { resolveInitialProductMode, resolveInitialSection } from '../../../helpe
 
 // Route synchronization and current-section orchestration.
 export const adminDashboardLifecycleMethods = {
+async refreshAdminCommerceSurfaces() {
+      if (
+        this.adminCommerceSyncInFlight ||
+        this.isAdminActionConfirmSaving ||
+        (typeof document !== 'undefined' && document.hidden)
+      ) return;
+
+      this.adminCommerceSyncInFlight = true;
+      try {
+        const detailOrderId = String(this.$route.params && this.$route.params.orderId || '').trim();
+        if (this.$route.name === 'studio-order-detail' && detailOrderId) {
+          if (this.selectedAdminOrderDetail) {
+            await this.refreshSelectedAdminOrderDetail(detailOrderId);
+          } else if (!this.isLoadingAdminOrderDetail) {
+            await this.loadAdminOrderDetail(detailOrderId);
+          }
+          return;
+        }
+
+        if (this.currentSection === 'requests') {
+          await this.loadRequests({ background: true });
+        } else if (this.currentSection === 'orders') {
+          await this.loadOrders({ background: true });
+        }
+      } finally {
+        this.adminCommerceSyncInFlight = false;
+      }
+    },
+handleAdminCommerceFocus() {
+      this.refreshAdminCommerceSurfaces();
+    },
+handleAdminCommerceVisibilityChange() {
+      if (typeof document !== 'undefined' && !document.hidden) {
+        this.refreshAdminCommerceSurfaces();
+      }
+    },
+startAdminCommerceSync() {
+      this.stopAdminCommerceSync();
+      this.adminCommerceSyncTimer = window.setInterval(
+        () => this.refreshAdminCommerceSurfaces(),
+        15000
+      );
+    },
+stopAdminCommerceSync() {
+      if (this.adminCommerceSyncTimer) window.clearInterval(this.adminCommerceSyncTimer);
+      this.adminCommerceSyncTimer = null;
+    },
 async loadAdminData() {
       this.applyNotificationRouteFilters();
       const detailProductId = String(this.$route.params && this.$route.params.productId || '').trim();

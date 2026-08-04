@@ -392,6 +392,53 @@ export const checkoutMethods = {
       this.isMarkingPaymentPaid = false;
     }
   },
+  openPaymentCancelConfirm() {
+    if (
+      this.isCancellingPayment
+      || !this.orderResult
+      || this.orderResult.paymentMethod !== 'bank_transfer'
+      || this.orderResult.paymentStatus !== 'pending_payment'
+      || this.orderResult.orderStatus !== 'pending'
+    ) return;
+
+    this.isPaymentCancelConfirmOpen = true;
+  },
+  closePaymentCancelConfirm() {
+    if (this.isCancellingPayment) return;
+    this.isPaymentCancelConfirmOpen = false;
+  },
+  async confirmPaymentCancellation() {
+    if (
+      this.isCancellingPayment
+      || !this.orderResult
+      || this.orderResult.paymentMethod !== 'bank_transfer'
+      || this.orderResult.paymentStatus !== 'pending_payment'
+      || this.orderResult.orderStatus !== 'pending'
+    ) return;
+
+    this.isCancellingPayment = true;
+    try {
+      const response = await orderApi.cancelOrder(this.orderResult.id, {
+        reason: 'Customer cancelled during QR payment.'
+      });
+
+      if (!response || !response.order) {
+        this.flash('This payment could not be cancelled. Please refresh and try again.', 'error');
+        return;
+      }
+
+      this.orderResult = {
+        ...this.orderResult,
+        ...response.order,
+        bankTransfer: this.orderResult.bankTransfer,
+        items: this.orderItems
+      };
+      this.isPaymentCancelConfirmOpen = false;
+      this.flash('Payment and order cancelled successfully.', 'success');
+    } finally {
+      this.isCancellingPayment = false;
+    }
+  },
   async expireBankTransferPayment() {
     if (!this.orderResult || this.orderResult.paymentMethod !== 'bank_transfer') return;
 

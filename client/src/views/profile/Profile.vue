@@ -317,6 +317,8 @@ export default {
       isChangingPassword: false,
       pendingProfileConfirm: null,
       orderSearchTimer: null,
+      orderSyncTimer: null,
+      orderSyncInFlight: false,
       passwordServerError: null,
       passwordSuccessMessage: ''
     };
@@ -448,6 +450,8 @@ export default {
 
       if (this.orderDetailId) {
         this.loadOrderDetail();
+      } else if (this.activeSection === 'orders') {
+        this.loadOrders({ background: true });
       }
       if (this.returnDetailId) {
         this.redirectLegacyReturnDetail();
@@ -471,6 +475,9 @@ export default {
   methods: profileMethods,
   async mounted() {
     await Promise.all([this.loadLocations(), this.loadProfile(), this.loadOrders(), this.loadReviews(), this.loadCoupons()]);
+    window.addEventListener('focus', this.handleOrderSyncFocus);
+    document.addEventListener('visibilitychange', this.handleOrderVisibilityChange);
+    this.startOrderSync();
     await this.syncAddressEditFromRoute();
     if (this.orderDetailId) {
       await this.loadOrderDetail();
@@ -481,6 +488,9 @@ export default {
   },
   beforeUnmount() {
     window.clearTimeout(this.orderSearchTimer);
+    this.stopOrderSync();
+    window.removeEventListener('focus', this.handleOrderSyncFocus);
+    document.removeEventListener('visibilitychange', this.handleOrderVisibilityChange);
   }
 };
 </script>
